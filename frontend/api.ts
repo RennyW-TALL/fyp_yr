@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://34.231.105.150';
+const API_BASE_URL = 'http://13.251.172.57';
 
 export const API_ENDPOINTS = {
   // Auth endpoints
