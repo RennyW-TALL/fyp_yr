@@ -1,0 +1,19 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# PHP Composer (commented out for deployment)
+# backend/vendor/
+# backend/composer.lock
+
+# Build outputs
+**/dist/
+**/build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo

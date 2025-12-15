@@ -1,0 +1,14 @@
+{
+    "name": "fyp/backend",
+    "description": "FYP Backend API",
+    "type": "project",
+    "require": {
+        "php": ">=8.0",
+        "vlucas/phpdotenv": "^5.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    }
+}
