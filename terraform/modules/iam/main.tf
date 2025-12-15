@@ -82,16 +82,13 @@ resource "aws_iam_policy" "cicd_policy" {
           "s3:PutObject",
           "s3:PutObjectAcl",
           "s3:GetObject",
-          "s3:DeleteObject"
-        ]
-        Resource = "${var.s3_bucket_arn}/*"
-      },
-      {
-        Effect = "Allow"
-        Action = [
+          "s3:DeleteObject",
           "s3:ListBucket"
         ]
-        Resource = var.s3_bucket_arn
+        Resource = [
+          var.s3_bucket_arn,
+          "${var.s3_bucket_arn}/*"
+        ]
       },
       {
         Effect = "Allow"
