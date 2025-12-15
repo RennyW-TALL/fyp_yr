@@ -39,5 +39,5 @@ jobs:
     - name: Deploy to S3
       working-directory: frontend
       run: |
-        aws s3 sync dist/ s3://${{ secrets.S3_BUCKET_NAME }} --delete --content-type-by-guess
-        aws s3 cp s3://${{ secrets.S3_BUCKET_NAME }}/index.html s3://${{ secrets.S3_BUCKET_NAME }}/index.html --metadata-directive REPLACE --cache-control "no-cache" --content-type "text/html"
+        aws s3 sync dist/ s3://${{ secrets.S3_BUCKET_NAME }} --delete
+        aws s3 cp dist/index.html s3://${{ secrets.S3_BUCKET_NAME }}/index.html --content-type "text/html" --cache-control "no-cache"

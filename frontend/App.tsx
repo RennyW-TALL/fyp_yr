@@ -12,7 +12,7 @@ import UserManagement from './pages/admin/UserManagement';
 import CounselorDashboard from './pages/counselor/CounselorDashboard';
 import { Role } from './types';
 
-// Protected Route Component - tee hee lol xd
+// Protected Route Component - tee hee lol xd bruh
 const ProtectedRoute = ({ children, allowedRoles }: PropsWithChildren<{ allowedRoles?: Role[] }>) => {
   const { user, isLoading } = useAuth();
 
