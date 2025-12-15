@@ -14,6 +14,10 @@ output "ec2_instance_id" {
   value = module.ec2.instance_id
 }
 
+output "aws_region" {
+  value = var.aws_region
+}
+
 output "rds_endpoint" {
   value = module.rds.rds_endpoint
 }
