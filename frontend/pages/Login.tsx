@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { Role } from '../types';
-import { Lock, Mail, Loader2, AlertCircle } from 'lucide-react';
+import { Lock, Mail, Loader2, AlertCircle, ArrowLeft } from 'lucide-react';
 
 const Login = () => {
   const { login, isLoading } = useAuth();
@@ -29,6 +29,10 @@ const Login = () => {
     }
   };
 
+  const redirectToRegistration = () => {
+    navigate('/register');
+  };
+
   const populateDemo = (role: 'student' | 'admin' | 'counselor') => {
     switch(role) {
         case 'student':
@@ -49,6 +53,14 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 border border-slate-100">
+        <button 
+          onClick={() => navigate('/')}
+          className="mb-6 flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Home
+        </button>
+
         <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-slate-800">Welcome Back</h2>
             <p className="text-slate-500 mt-2">Sign in to access the MindCare portal</p>
@@ -99,6 +111,18 @@ const Login = () => {
                 {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Sign In'}
             </button>
         </form>
+
+        <div className="mt-6 text-center">
+            <p className="text-sm text-slate-600">
+                Don't have an account?{' '}
+                <button 
+                    onClick={redirectToRegistration}
+                    className="text-brand-600 hover:text-brand-700 font-medium underline"
+                >
+                    Register here
+                </button>
+            </p>
+        </div>
 
         <div className="mt-8 pt-6 border-t border-slate-100">
             <p className="text-xs text-center text-slate-500 mb-3">Quick Fill (Demo Only)</p>

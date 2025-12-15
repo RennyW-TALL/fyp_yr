@@ -3,6 +3,7 @@ import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Layout from './components/Layout';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import Landing from './pages/Landing';
 import StudentDashboard from './pages/student/StudentDashboard';
 import ChatbotPage from './pages/student/ChatbotPage';
@@ -40,6 +41,7 @@ const AppRoutes = () => {
         <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             
             {/* Student Routes */}
             <Route path="/student/*" element={
