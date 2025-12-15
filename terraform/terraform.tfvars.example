@@ -1,3 +1,3 @@
-aws_region   = "us-east-1"
+aws_region   = "ap-southeast-1"
 project_name = "fyp-yr"
 environment  = "dev"
