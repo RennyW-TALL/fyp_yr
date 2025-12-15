@@ -4,6 +4,10 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.1"
+    }
   }
 }
 
@@ -12,7 +16,7 @@ provider "aws" {
 }
 
 resource "aws_s3_bucket" "terraform_state" {
-  bucket = "fyp-yr-terraform-state-ap-southeast-1"
+  bucket = "fyp-yr-terraform-state-${random_string.bucket_suffix.result}"
 
   tags = {
     Name = "Terraform State Bucket"
@@ -58,4 +62,10 @@ resource "aws_dynamodb_table" "terraform_locks" {
   tags = {
     Name = "Terraform Lock Table"
   }
+}
+
+resource "random_string" "bucket_suffix" {
+  length  = 8
+  special = false
+  upper   = false
 }
