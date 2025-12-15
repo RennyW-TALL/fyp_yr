@@ -41,7 +41,7 @@ After deployment, add these secrets to your GitHub repository:
 ## Free Tier Resources
 
 All resources are configured to stay within AWS free tier limits:
-- EC2: t2.micro instance
+- EC2: t3.small instance
 - RDS: db.t3.micro with 20GB storage
 - S3: Standard storage
 - VPC: No additional charges
