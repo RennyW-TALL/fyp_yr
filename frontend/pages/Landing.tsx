@@ -23,7 +23,7 @@ const Landing = () => {
                 APU Final Year Project 2024
             </div>
             <h1 className="text-4xl md:text-6xl font-extrabold text-slate-900 tracking-tight mb-6">
-                Cloud-Based Mental Healthcare <br className="hidden md:block"/> Platform
+                Cloud-Based Mental Healthcare <br className="hidden md:block"/> Platform testing
             </h1>
             <p className="text-lg text-slate-600 max-w-2xl mx-auto mb-8">
                 A secure, role-based platform bridging the gap between students and professional counseling through ethical AI screening and streamlined appointment management.
