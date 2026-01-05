@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Brain, ShieldCheck, HeartPulse, Activity } from 'lucide-react';
 import { SDG_INFO } from '../constants';
+import { API_ENDPOINTS } from '../api';
 
 const Landing = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost/FYP_OfficialCode/backend/API/users/list.php')
+    fetch(API_ENDPOINTS.USERS_LIST)
       .then(response => response.json())
       .then(data => {
         if (data.success) {

@@ -9,6 +9,7 @@ export const API_ENDPOINTS = {
   // User endpoints
   PROFILE: `${API_BASE_URL}/api/user/profile`,
   UPDATE_PROFILE: `${API_BASE_URL}/api/user/profile`,
+  USERS_LIST: `${API_BASE_URL}/backend/API/users/list.php`,
   
   // Student endpoints
   STUDENTS: `${API_BASE_URL}/api/students`,
