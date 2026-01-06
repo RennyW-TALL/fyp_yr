@@ -68,13 +68,9 @@ const TherapistCard: React.FC<TherapistCardProps> = ({
           {gender}
         </p>
         
-        <p className={`text-sm ${styles.accent} font-medium mb-4`}>
+        <p className={`text-sm ${styles.accent} font-medium`}>
           {specialization}
         </p>
-        
-        <button className={`${styles.button} text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors`}>
-          Book Session
-        </button>
       </div>
     </div>
   );

@@ -200,20 +200,14 @@ const StudentDashboard = () => {
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {therapists.map((therapist) => (
-            <div key={therapist.id} className="p-4 border border-slate-200 rounded-xl">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center">
-                  <Users className="h-6 w-6 text-slate-600" />
-                </div>
-                <div>
-                  <h4 className="font-semibold text-slate-900">{therapist.name}</h4>
-                  <p className="text-sm text-slate-500">{therapist.gender}</p>
-                </div>
-              </div>
-              <p className="text-sm text-slate-600">
-                <span className="font-medium">Specialization:</span> {therapist.specialization}
-              </p>
-            </div>
+            <TherapistCard
+              key={therapist.id}
+              id={therapist.id}
+              name={therapist.name}
+              gender={therapist.gender}
+              specialization={therapist.specialization}
+              profileImage={therapist.profileImage}
+            />
           ))}
         </div>
       </div>
