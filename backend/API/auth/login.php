@@ -31,24 +31,24 @@ if (!$user || $password !== $user["password"]) {
 $_SESSION["user_id"] = $user["user_id"];
 $_SESSION["role"] = $user["role"];
 
-// Determine redirect URL based on role
-$redirectUrl = "/";
+// Hard-coded redirect based on role
 switch ($user["role"]) {
     case "student":
-        $redirectUrl = "/student/dashboard";
+        echo "<script>window.location.href='http://localhost:5173/#/student/dashboard';</script>";
         break;
     case "counselor":
-        $redirectUrl = "/counselor/dashboard";
+        echo "<script>window.location.href='http://localhost:5173/#/counselor/dashboard';</script>";
         break;
     case "admin":
-        $redirectUrl = "/admin/dashboard";
+        echo "<script>window.location.href='http://localhost:5173/#/admin/dashboard';</script>";
         break;
+    default:
+        echo "<script>window.location.href='http://localhost:5173/';</script>";
 }
 
 echo json_encode([
     "success" => true,
     "message" => "Login successful",
-    "redirectUrl" => $redirectUrl,
     "user" => [
         "id" => $user["user_id"],
         "username" => $user["username"],

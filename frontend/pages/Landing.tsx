@@ -6,20 +6,22 @@ import { SDG_INFO } from '../constants';
 const Landing = () => {
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      {/* Animated Header */}
+      <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white py-2 text-center animate-pulse">
+        <p className="text-sm font-medium">🌟 Welcome to MindCare APU - Your Mental Health Companion 🌟</p>
+      </div>
+
       {/* Hero Section */}
-      <div className="bg-white border-b border-slate-100">
+      <div className="bg-white/80 backdrop-blur-sm border-b border-slate-100">
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
             <div className="flex items-center gap-2">
                 <Brain className="h-8 w-8 text-brand-600" />
                 <span className="text-xl font-bold text-slate-900">MindCare APU</span>
             </div>
             <div className="flex items-center gap-4">
-                <Link to="/login" className="px-4 py-2 text-slate-700 hover:text-brand-600 font-medium transition-colors">
-                    Login
-                </Link>
-                <Link to="/register" className="px-4 py-2 bg-brand-600 text-white rounded-lg font-medium hover:bg-brand-700 transition-colors">
-                    Registration
+                <Link to="/register" className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg">
+                    Login / Register
                 </Link>
             </div>
         </nav>

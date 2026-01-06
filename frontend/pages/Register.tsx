@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Brain, Eye, EyeOff } from 'lucide-react';
+import { Brain, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 
 const Register = () => {
   const [userType, setUserType] = useState('student');
@@ -94,37 +94,40 @@ const Register = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md mx-auto">
-        <div>
-          <Link to="/" className="flex items-center justify-center gap-2 mb-8">
-            <Brain className="h-8 w-8 text-brand-600" />
-            <span className="text-xl font-bold text-slate-900">MindCare APU</span>
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 p-8">
+          <Link to="/" className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 mb-6 transition-colors">
+            <ArrowLeft className="h-4 w-4" />
+            <span className="text-sm font-medium">Back to Main Page</span>
           </Link>
-          <h2 className="text-center text-3xl font-extrabold text-slate-900">
-            Create your account
-          </h2>
-          <p className="mt-2 text-center text-sm text-slate-600">
-            Already have an account?{' '}
-            <Link to="/login" className="font-medium text-brand-600 hover:text-brand-500">
-              Sign in
+          
+          <div className="text-center mb-8">
+            <Link to="/" className="flex items-center justify-center gap-2 mb-4">
+              <Brain className="h-10 w-10 text-indigo-600" />
+              <span className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">MindCare APU</span>
             </Link>
-          </p>
-        </div>
+            <h2 className="text-3xl font-bold text-slate-800 mb-2">
+              Create Account
+            </h2>
+            <p className="text-slate-600">
+              Join our mental health community
+            </p>
+          </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form className="space-y-6" onSubmit={handleSubmit}>
           {/* User Type Selection */}
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-3">
+            <label className="block text-sm font-semibold text-slate-700 mb-3">
               Register as
             </label>
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => setUserType('student')}
-                className={`p-3 text-sm font-medium rounded-lg border-2 transition-colors ${
+                className={`p-3 text-sm font-semibold rounded-xl border-2 transition-all ${
                   userType === 'student'
-                    ? 'border-brand-500 bg-brand-50 text-brand-700'
+                    ? 'border-indigo-500 bg-indigo-50 text-indigo-700 shadow-md'
                     : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                 }`}
               >
@@ -133,9 +136,9 @@ const Register = () => {
               <button
                 type="button"
                 onClick={() => setUserType('counselor')}
-                className={`p-3 text-sm font-medium rounded-lg border-2 transition-colors ${
+                className={`p-3 text-sm font-semibold rounded-xl border-2 transition-all ${
                   userType === 'counselor'
-                    ? 'border-brand-500 bg-brand-50 text-brand-700'
+                    ? 'border-indigo-500 bg-indigo-50 text-indigo-700 shadow-md'
                     : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                 }`}
               >
@@ -414,12 +417,21 @@ const Register = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-semibold rounded-xl hover:from-indigo-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] shadow-lg"
             >
-              {loading ? 'Creating account...' : 'Create account'}
+              {loading ? 'Creating account...' : 'Create Account'}
             </button>
-          </div>
-        </form>
+            
+            <div className="text-center">
+              <p className="text-sm text-slate-600">
+                Already have an account?{' '}
+                <Link to="/login" className="font-semibold text-indigo-600 hover:text-indigo-700 transition-colors">
+                  Sign in here
+                </Link>
+              </p>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );
