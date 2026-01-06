@@ -42,7 +42,7 @@ const Login = () => {
       const data = await response.json();
 
       if (data.success) {
-        setMessage({ type: 'success', text: 'Login successful! Redirecting...' });
+        setMessage({ type: 'success', text: `Login successful as ${data.user.role.toUpperCase()}! Redirecting...` });
         
         // Store user data in localStorage
         localStorage.setItem('user', JSON.stringify(data.user));
