@@ -10,7 +10,7 @@ const Landing = () => {
 
   //testing the conection
   useEffect(() => {
-    fetch('http://13.251.172.57:8080/API/users/list.php')
+    fetch('http://13.251.172.57/API/users/list.php')
 
       .then(response => response.json())
       .then(data => {
