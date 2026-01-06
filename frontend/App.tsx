@@ -6,7 +6,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Landing from './pages/Landing';
 import StudentDashboard from './pages/student/StudentDashboard';
-import ChatbotPage from './pages/student/ChatbotPage';
+
 import AppointmentsPage from './pages/student/AppointmentsPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import UserManagement from './pages/admin/UserManagement';
@@ -31,7 +31,7 @@ const AppRoutes = () => {
                     <Layout>
                         <Routes>
                             <Route path="dashboard" element={<StudentDashboard />} />
-                            <Route path="chat" element={<ChatbotPage />} />
+
                             <Route path="appointments" element={<AppointmentsPage />} />
                         </Routes>
                     </Layout>
