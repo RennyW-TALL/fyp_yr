@@ -14,6 +14,7 @@ interface Appointment {
   cancel_reason?: string;
   cancelled_at?: string;
   session_note?: string;
+  reason?: string;
   created_at: string;
 }
 
@@ -26,8 +27,11 @@ const AppointmentsPage = () => {
   const [cancelReason, setCancelReason] = useState('');
   const [bookingForm, setBookingForm] = useState({
     therapist: '',
-    session: ''
+    session: '',
+    reason: ''
   });
+  const [sortBy, setSortBy] = useState<'date' | 'time'>('date');
+  const [filterStatus, setFilterStatus] = useState<string>('');
   
   const availableSessions = {
     'Dr. Mei Lee': [
@@ -129,6 +133,17 @@ const AppointmentsPage = () => {
     localStorage.setItem('appointments', JSON.stringify(appointments));
   }, [appointments]);
 
+  // Get available sessions (excluding booked ones)
+  const getAvailableSessions = (therapist: string) => {
+    const bookedSessions = appointments
+      .filter(apt => apt.therapist_name === therapist && apt.status !== 'Cancelled')
+      .map(apt => `${apt.appointment_date}-${apt.start_time}-${apt.end_time}`);
+    
+    return availableSessions[therapist as keyof typeof availableSessions]?.filter(session => 
+      !bookedSessions.includes(`${session.date}-${session.start_time}-${session.end_time}`)
+    ) || [];
+  };
+
   const therapists = ['Dr. John Smith', 'Dr. Mei Lee', 'Dr. Wilson House'];
 
   const handleCancelClick = (appointment: Appointment) => {
@@ -162,24 +177,40 @@ const AppointmentsPage = () => {
           start_time: sessionData.start_time,
           end_time: sessionData.end_time,
           status: 'Pending',
+          reason: bookingForm.reason,
           created_at: new Date().toISOString()
         };
         
         setAppointments(prev => [...prev, newAppointment]);
         setShowBookingModal(false);
-        setBookingForm({ therapist: '', session: '' });
+        setBookingForm({ therapist: '', session: '', reason: '' });
       }
     }
   };
   
-  // Filters
+  // Filters and sorting
   const today = new Date();
   const upcoming = appointments.filter(apt => {
     const appointmentDate = new Date(apt.appointment_date);
     return appointmentDate > today && (apt.status === 'Pending' || apt.status === 'Confirmed');
   });
+  
+  const getFilteredAndSortedList = (list: Appointment[]) => {
+    let filtered = filterStatus ? list.filter(apt => apt.status === filterStatus) : list;
+    
+    return filtered.sort((a, b) => {
+      if (sortBy === 'date') {
+        return new Date(b.appointment_date).getTime() - new Date(a.appointment_date).getTime();
+      } else {
+        const dateTimeA = new Date(`${a.appointment_date} ${a.start_time}`);
+        const dateTimeB = new Date(`${b.appointment_date} ${b.start_time}`);
+        return dateTimeB.getTime() - dateTimeA.getTime();
+      }
+    });
+  };
+  
   const allAppointments = appointments;
-  const displayList = activeTab === 'upcoming' ? upcoming : allAppointments;
+  const displayList = getFilteredAndSortedList(activeTab === 'upcoming' ? upcoming : allAppointments);
 
   return (
     <>
@@ -212,6 +243,39 @@ const AppointmentsPage = () => {
         </button>
       </div>
 
+      {/* Filters */}
+      <div className="flex gap-4 mb-6">
+        <select 
+          value={sortBy} 
+          onChange={(e) => setSortBy(e.target.value as 'date' | 'time')}
+          className="px-3 py-2 border border-slate-300 rounded-lg text-sm"
+        >
+          <option value="date">Sort by Date</option>
+          <option value="time">Sort by Date & Time</option>
+        </select>
+        
+        <select 
+          value={filterStatus} 
+          onChange={(e) => setFilterStatus(e.target.value)}
+          className="px-3 py-2 border border-slate-300 rounded-lg text-sm"
+        >
+          <option value="">All Status</option>
+          <option value="Pending">Pending</option>
+          <option value="Confirmed">Confirmed</option>
+          <option value="Completed">Completed</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+        
+        {filterStatus && (
+          <button 
+            onClick={() => setFilterStatus('')}
+            className="px-3 py-2 text-slate-600 hover:bg-slate-100 rounded-lg text-sm"
+          >
+            Clear Filter
+          </button>
+        )}
+      </div>
+
       {/* List */}
       <div className="space-y-4">
         {displayList.length === 0 ? (
@@ -237,6 +301,12 @@ const AppointmentsPage = () => {
                             </div>
                             {apt.session_note && (
                                 <p className="text-sm text-slate-600 mt-2 italic">{apt.session_note}</p>
+                            )}
+                            {apt.reason && (
+                                <p className="text-sm text-slate-600 mt-1"><span className="font-medium">Reason:</span> {apt.reason}</p>
+                            )}
+                            {apt.cancel_reason && (
+                                <p className="text-sm text-red-600 mt-1"><span className="font-medium">Cancelled:</span> {apt.cancel_reason}</p>
                             )}
                         </div>
                     </div>
@@ -278,7 +348,7 @@ const AppointmentsPage = () => {
                         <label className="block text-sm font-medium text-slate-700 mb-1">Select Counselor</label>
                         <select 
                             value={bookingForm.therapist}
-                            onChange={(e) => setBookingForm({therapist: e.target.value, session: ''})}
+                            onChange={(e) => setBookingForm({therapist: e.target.value, session: '', reason: bookingForm.reason})}
                             className="w-full p-2 border border-slate-300 rounded-lg"
                         >
                             <option value="">Choose a therapist</option>
@@ -296,12 +366,22 @@ const AppointmentsPage = () => {
                                 className="w-full p-2 border border-slate-300 rounded-lg"
                             >
                                 <option value="">Choose a session</option>
-                                {availableSessions[bookingForm.therapist as keyof typeof availableSessions]?.map(session => (
+                                {getAvailableSessions(bookingForm.therapist).map(session => (
                                     <option key={session.display} value={session.display}>{session.display}</option>
                                 ))}
                             </select>
                         </div>
                     )}
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Reason (Optional)</label>
+                        <textarea 
+                            value={bookingForm.reason}
+                            onChange={(e) => setBookingForm({...bookingForm, reason: e.target.value})}
+                            className="w-full p-2 border border-slate-300 rounded-lg text-sm" 
+                            rows={3} 
+                            placeholder="Briefly describe what you'd like to discuss..."
+                        />
+                    </div>
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">Session Type</label>
                         <div className="flex gap-4">
@@ -314,10 +394,6 @@ const AppointmentsPage = () => {
                                 <span>Online (Teams)</span>
                             </label>
                         </div>
-                    </div>
-                    <div>
-                         <label className="block text-sm font-medium text-slate-700 mb-1">Reason (Optional)</label>
-                         <textarea className="w-full p-2 border border-slate-300 rounded-lg text-sm" rows={3} placeholder="Briefly describe what you'd like to discuss..."></textarea>
                     </div>
                 </div>
                 <div className="p-6 bg-slate-50 flex justify-end gap-3">
