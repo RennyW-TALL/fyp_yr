@@ -47,69 +47,20 @@ const Login = () => {
         // Store user data in localStorage
         localStorage.setItem('user', JSON.stringify(data.user));
         
-        // Redirect immediately using the URL from backend
-        navigate(data.redirectUrl || '/');
-      } else {
-        setMessage({ type: 'error', text: data.message || 'Login failed' });
-      }
-    } catch (error) {
-      setMessage({ type: 'error', text: 'Network error. Please try again.' });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Brain, Eye, EyeOff, ArrowLeft } from 'lucide-react';
-
-const Login = () => {
-  const [formData, setFormData] = useState({
-    username: '',
-    password: ''
-  });
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState({ type: '', text: '' });
-  const navigate = useNavigate();
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (formData.password.length < 6) {
-      setMessage({ type: 'error', text: 'Password must be at least 6 characters long' });
-      return;
-    }
-
-    setLoading(true);
-    setMessage({ type: '', text: '' });
-
-    try {
-      const response = await fetch('http://13.251.172.57/API/auth/login.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setMessage({ type: 'success', text: 'Login successful! Redirecting...' });
-        
-        // Store user data in localStorage
-        localStorage.setItem('user', JSON.stringify(data.user));
-        
-        // Redirect immediately using the URL from backend
-        navigate(data.redirectUrl || '/');
+        // Redirect based on role
+        switch (data.user.role) {
+          case 'student':
+            navigate('/student/dashboard');
+            break;
+          case 'counselor':
+            navigate('/counselor/dashboard');
+            break;
+          case 'admin':
+            navigate('/admin/dashboard');
+            break;
+          default:
+            navigate('/');
+        }
       } else {
         setMessage({ type: 'error', text: data.message || 'Login failed' });
       }
