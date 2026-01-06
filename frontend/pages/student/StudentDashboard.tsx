@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, ArrowRight, BookOpen, Users } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -30,7 +30,8 @@ interface Therapist {
 const StudentDashboard = () => {
   const { user } = useAuth();
   
-  const [appointments] = useState<Appointment[]>([
+  // This should ideally be shared state or context, but for now we'll simulate it
+  const [appointments, setAppointments] = useState<Appointment[]>([
     {
       appointment_id: 1,
       therapist_name: 'Dr. John Smith',
@@ -92,6 +93,26 @@ const StudentDashboard = () => {
       created_at: '2025-02-15 10:30:00'
     }
   ]);
+
+  // Listen for storage changes to sync appointments across tabs/components
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const storedAppointments = localStorage.getItem('appointments');
+      if (storedAppointments) {
+        setAppointments(JSON.parse(storedAppointments));
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Check for stored appointments on mount
+    const storedAppointments = localStorage.getItem('appointments');
+    if (storedAppointments) {
+      setAppointments(JSON.parse(storedAppointments));
+    }
+
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   const getUpcomingAppointment = () => {
     const today = new Date();

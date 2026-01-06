@@ -26,9 +26,32 @@ const AppointmentsPage = () => {
   const [cancelReason, setCancelReason] = useState('');
   const [bookingForm, setBookingForm] = useState({
     therapist: '',
-    date: '',
-    time: ''
+    session: ''
   });
+  
+  const availableSessions = {
+    'Dr. Mei Lee': [
+      { date: '2026-01-08', start_time: '14:00:00', end_time: '15:00:00', display: '8th Jan 2026 - 2pm to 3pm' },
+      { date: '2026-01-09', start_time: '14:00:00', end_time: '15:00:00', display: '9th Jan 2026 - 2pm to 3pm' },
+      { date: '2026-01-09', start_time: '16:00:00', end_time: '17:00:00', display: '9th Jan 2026 - 4pm to 5pm' },
+      { date: '2026-01-18', start_time: '14:00:00', end_time: '15:00:00', display: '18th Jan 2026 - 2pm to 3pm' },
+      { date: '2026-01-22', start_time: '09:00:00', end_time: '10:00:00', display: '22nd Jan 2026 - 9am to 10am' }
+    ],
+    'Dr. John Smith': [
+      { date: '2026-01-12', start_time: '10:00:00', end_time: '11:00:00', display: '12th Jan 2026 - 10am to 11am' },
+      { date: '2026-01-12', start_time: '14:00:00', end_time: '15:00:00', display: '12th Jan 2026 - 2pm to 3pm' },
+      { date: '2026-01-13', start_time: '15:00:00', end_time: '16:00:00', display: '13th Jan 2026 - 3pm to 4pm' },
+      { date: '2026-01-18', start_time: '11:00:00', end_time: '12:00:00', display: '18th Jan 2026 - 11am to 12pm' },
+      { date: '2026-01-25', start_time: '14:00:00', end_time: '15:00:00', display: '25th Jan 2026 - 2pm to 3pm' }
+    ],
+    'Dr. Wilson House': [
+      { date: '2026-01-14', start_time: '09:00:00', end_time: '10:00:00', display: '14th Jan 2026 - 9am to 10am' },
+      { date: '2026-01-14', start_time: '13:00:00', end_time: '14:00:00', display: '14th Jan 2026 - 1pm to 2pm' },
+      { date: '2026-01-15', start_time: '11:00:00', end_time: '12:00:00', display: '15th Jan 2026 - 11am to 12pm' },
+      { date: '2026-01-20', start_time: '10:00:00', end_time: '11:00:00', display: '20th Jan 2026 - 10am to 11am' },
+      { date: '2026-01-24', start_time: '15:00:00', end_time: '16:00:00', display: '24th Jan 2026 - 3pm to 4pm' }
+    ]
+  };
   
   const [appointments, setAppointments] = useState<Appointment[]>([
     {
@@ -93,6 +116,19 @@ const AppointmentsPage = () => {
     }
   ]);
 
+  // Load appointments from localStorage on mount
+  useEffect(() => {
+    const storedAppointments = localStorage.getItem('appointments');
+    if (storedAppointments) {
+      setAppointments(JSON.parse(storedAppointments));
+    }
+  }, []);
+
+  // Save appointments to localStorage whenever appointments change
+  useEffect(() => {
+    localStorage.setItem('appointments', JSON.stringify(appointments));
+  }, [appointments]);
+
   const therapists = ['Dr. John Smith', 'Dr. Mei Lee', 'Dr. Wilson House'];
 
   const handleCancelClick = (appointment: Appointment) => {
@@ -114,23 +150,25 @@ const AppointmentsPage = () => {
   };
 
   const handleBookingSubmit = () => {
-    if (bookingForm.therapist && bookingForm.date && bookingForm.time) {
-      const endTime = new Date(`2000-01-01 ${bookingForm.time}`);
-      endTime.setHours(endTime.getHours() + 1);
+    if (bookingForm.therapist && bookingForm.session) {
+      const sessionData = availableSessions[bookingForm.therapist as keyof typeof availableSessions]
+        .find(session => session.display === bookingForm.session);
       
-      const newAppointment: Appointment = {
-        appointment_id: Math.max(...appointments.map(a => a.appointment_id)) + 1,
-        therapist_name: bookingForm.therapist,
-        appointment_date: bookingForm.date,
-        start_time: bookingForm.time + ':00',
-        end_time: endTime.toTimeString().slice(0, 8),
-        status: 'Pending',
-        created_at: new Date().toISOString()
-      };
-      
-      setAppointments(prev => [...prev, newAppointment]);
-      setShowBookingModal(false);
-      setBookingForm({ therapist: '', date: '', time: '' });
+      if (sessionData) {
+        const newAppointment: Appointment = {
+          appointment_id: Math.max(...appointments.map(a => a.appointment_id)) + 1,
+          therapist_name: bookingForm.therapist,
+          appointment_date: sessionData.date,
+          start_time: sessionData.start_time,
+          end_time: sessionData.end_time,
+          status: 'Pending',
+          created_at: new Date().toISOString()
+        };
+        
+        setAppointments(prev => [...prev, newAppointment]);
+        setShowBookingModal(false);
+        setBookingForm({ therapist: '', session: '' });
+      }
     }
   };
   
@@ -240,7 +278,7 @@ const AppointmentsPage = () => {
                         <label className="block text-sm font-medium text-slate-700 mb-1">Select Counselor</label>
                         <select 
                             value={bookingForm.therapist}
-                            onChange={(e) => setBookingForm({...bookingForm, therapist: e.target.value})}
+                            onChange={(e) => setBookingForm({therapist: e.target.value, session: ''})}
                             className="w-full p-2 border border-slate-300 rounded-lg"
                         >
                             <option value="">Choose a therapist</option>
@@ -249,26 +287,21 @@ const AppointmentsPage = () => {
                             ))}
                         </select>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    {bookingForm.therapist && (
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Date</label>
-                            <input 
-                                type="date" 
-                                value={bookingForm.date}
-                                onChange={(e) => setBookingForm({...bookingForm, date: e.target.value})}
-                                className="w-full p-2 border border-slate-300 rounded-lg" 
-                            />
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Available Sessions</label>
+                            <select 
+                                value={bookingForm.session}
+                                onChange={(e) => setBookingForm({...bookingForm, session: e.target.value})}
+                                className="w-full p-2 border border-slate-300 rounded-lg"
+                            >
+                                <option value="">Choose a session</option>
+                                {availableSessions[bookingForm.therapist as keyof typeof availableSessions]?.map(session => (
+                                    <option key={session.display} value={session.display}>{session.display}</option>
+                                ))}
+                            </select>
                         </div>
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Time</label>
-                            <input 
-                                type="time" 
-                                value={bookingForm.time}
-                                onChange={(e) => setBookingForm({...bookingForm, time: e.target.value})}
-                                className="w-full p-2 border border-slate-300 rounded-lg" 
-                            />
-                        </div>
-                    </div>
+                    )}
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">Session Type</label>
                         <div className="flex gap-4">
