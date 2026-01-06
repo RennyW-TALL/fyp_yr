@@ -1,0 +1,7 @@
+appointment_id,therapist_name,appointment_date,start_time,end_time,status,cancel_reason,cancelled_at,session_note,created_at
+1,Dr. John Smith,2025-03-10,10:00:00,11:00:00,Completed,,,The session went well, the patient showed significant improvement in their mood and behavior.,2024-12-01 10:00:00
+2,Dr. Mei Lee,2026-04-15,11:00:00,12:00:00,Pending,,,,2025-01-01 14:00:00
+3,Dr. Wilson House,2026-05-20,14:00:00,15:00:00,Confirmed,,,,2025-01-10 11:00:00
+4,Dr. John Smith,2026-06-10,09:00:00,10:00:00,Cancelled,User no-show,2026-06-10 08:30:00,The appointment was cancelled as the patient did not show up.,2025-01-20 13:00:00
+5,Dr. Mei Lee,2026-07-10,16:00:00,17:00:00,Completed,,,The session was very productive, the patient made good progress in addressing their stress.,2025-02-01 15:00:00
+6,Dr. Wilson House,2026-08-05,10:00:00,11:00:00,Completed,,,The patient showed great engagement during the session and discussed their coping mechanisms.,2025-02-15 10:30:00

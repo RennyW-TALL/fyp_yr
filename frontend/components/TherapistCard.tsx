@@ -17,6 +17,11 @@ const TherapistCard: React.FC<TherapistCardProps> = ({
 }) => {
   const getImageUrl = (imageKey: string) => {
     if (!imageKey) return '/default-avatar.png';
+    // If it's already a local import (starts with data: or /), use it directly
+    if (imageKey.startsWith('data:') || imageKey.startsWith('/') || imageKey.startsWith('blob:')) {
+      return imageKey;
+    }
+    // Otherwise, treat as S3 key
     const decodedKey = decodeURIComponent(imageKey);
     return `https://yr-fyp-profile-images.s3.ap-southeast-1.amazonaws.com/${decodedKey}`;
   };

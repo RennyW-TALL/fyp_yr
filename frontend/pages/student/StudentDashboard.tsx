@@ -1,16 +1,23 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { MessageSquare, Calendar, ArrowRight, BookOpen, Users } from 'lucide-react';
-import { MOCK_APPOINTMENTS } from '../../constants';
 import { useAuth } from '../../context/AuthContext';
 import StudentHeader from '../../components/StudentHeader';
 import TherapistCard from '../../components/TherapistCard';
 import CareCompanion from '../../components/CareCompanion';
 
-// Import therapist images
-import drJohnSmithImg from '../../assets/images/therapists/dr-john-smith.jpg';
-import drMeiLeeImg from '../../assets/images/therapists/dr-mei-lee.jpg';
-import drWilsonHouseImg from '../../assets/images/therapists/dr-wilson-house.jpg';
+interface Appointment {
+  appointment_id: number;
+  therapist_name: string;
+  appointment_date: string;
+  start_time: string;
+  end_time: string;
+  status: string;
+  cancel_reason?: string;
+  cancelled_at?: string;
+  session_note?: string;
+  created_at: string;
+}
 
 interface Therapist {
   id: number;
@@ -22,27 +29,64 @@ interface Therapist {
 
 const StudentDashboard = () => {
   const { user } = useAuth();
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  
+  useEffect(() => {
+    loadAppointments();
+  }, []);
+
+  const loadAppointments = async () => {
+    try {
+      const response = await fetch('/data/appointments.csv');
+      const csvText = await response.text();
+      const lines = csvText.split('\n');
+      const headers = lines[0].split(',');
+      
+      const appointmentData = lines.slice(1).filter(line => line.trim()).map(line => {
+        const values = line.split(',');
+        const appointment: any = {};
+        headers.forEach((header, index) => {
+          appointment[header.trim()] = values[index]?.trim() || '';
+        });
+        return appointment as Appointment;
+      });
+      
+      setAppointments(appointmentData);
+    } catch (error) {
+      console.error('Error loading appointments:', error);
+    }
+  };
+
+  const getUpcomingAppointment = () => {
+    const today = new Date();
+    return appointments.find(apt => {
+      const appointmentDate = new Date(apt.appointment_date);
+      return appointmentDate > today && (apt.status === 'Confirmed' || apt.status === 'Pending');
+    });
+  };
+
+  const nextAppointment = getUpcomingAppointment();
   const therapists: Therapist[] = [
     {
       id: 1,
       name: 'Dr John Smith',
       gender: 'male',
       specialization: 'Anxiety & Stress',
-      profileImage: drJohnSmithImg
+      profileImage: '/images/therapists/dr-john-smith.jpg'
     },
     {
       id: 2,
       name: 'Dr Mei Lee',
       gender: 'female',
       specialization: 'Academic Pressure',
-      profileImage: drMeiLeeImg
+      profileImage: '/images/therapists/dr-mei-lee.jpg'
     },
     {
       id: 3,
       name: 'Dr Wilson House',
       gender: 'male',
       specialization: 'Anxiety and Depression',
-      profileImage: drWilsonHouseImg
+      profileImage: '/images/therapists/dr-wilson-house.jpg'
     }
   ];
   const nextAppointment = MOCK_APPOINTMENTS.find(a => a.studentId === user?.id && a.status === 'CONFIRMED');
@@ -86,18 +130,17 @@ const StudentDashboard = () => {
             {nextAppointment ? (
                 <div className="space-y-4">
                     <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                        <p className="font-semibold text-slate-900">{nextAppointment.date}</p>
-                        <p className="text-slate-500 text-sm">{nextAppointment.time}</p>
+                        <p className="font-semibold text-slate-900">{nextAppointment.appointment_date}</p>
+                        <p className="text-slate-500 text-sm">{nextAppointment.start_time} - {nextAppointment.end_time}</p>
                         <div className="mt-2 text-xs font-medium text-brand-600 bg-brand-50 inline-block px-2 py-1 rounded">
-                            {nextAppointment.type}
+                            {nextAppointment.status}
                         </div>
                     </div>
-                    <p className="text-sm text-slate-500">Counselor: <span className="text-slate-900 font-medium">{nextAppointment.counselorName}</span></p>
+                    <p className="text-sm text-slate-500">Therapist: <span className="text-slate-900 font-medium">{nextAppointment.therapist_name}</span></p>
                 </div>
             ) : (
                 <div className="h-32 flex flex-col items-center justify-center text-center">
                     <p className="text-slate-400 text-sm mb-3">No upcoming appointments</p>
-                    <Link to="/student/appointments" className="text-sm font-medium text-brand-600 hover:underline">Book a session</Link>
                 </div>
             )}
         </div>

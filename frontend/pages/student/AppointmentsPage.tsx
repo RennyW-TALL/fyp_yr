@@ -1,23 +1,65 @@
-import React, { useState } from 'react';
-import { MOCK_APPOINTMENTS, MOCK_USERS } from '../../constants';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Calendar as CalendarIcon, Clock, Video, MapPin, XCircle, Plus, CheckCircle2 } from 'lucide-react';
-import { Role } from '../../types';
 import StudentHeader from '../../components/StudentHeader';
 import CareCompanion from '../../components/CareCompanion';
+
+interface Appointment {
+  appointment_id: number;
+  therapist_name: string;
+  appointment_date: string;
+  start_time: string;
+  end_time: string;
+  status: string;
+  cancel_reason?: string;
+  cancelled_at?: string;
+  session_note?: string;
+  created_at: string;
+}
 
 const AppointmentsPage = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
   const [showBookingModal, setShowBookingModal] = useState(false);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
+  
+  useEffect(() => {
+    loadAppointments();
+  }, []);
+
+  const loadAppointments = async () => {
+    try {
+      const response = await fetch('/data/appointments.csv');
+      const csvText = await response.text();
+      const lines = csvText.split('\n');
+      const headers = lines[0].split(',');
+      
+      const appointmentData = lines.slice(1).filter(line => line.trim()).map(line => {
+        const values = line.split(',');
+        const appointment: any = {};
+        headers.forEach((header, index) => {
+          appointment[header.trim()] = values[index]?.trim() || '';
+        });
+        return appointment as Appointment;
+      });
+      
+      setAppointments(appointmentData);
+    } catch (error) {
+      console.error('Error loading appointments:', error);
+    }
+  };
   
   // Filters
-  const myAppointments = MOCK_APPOINTMENTS.filter(a => a.studentId === user?.id);
-  const upcoming = myAppointments.filter(a => a.status === 'PENDING' || a.status === 'CONFIRMED');
-  const past = myAppointments.filter(a => a.status === 'COMPLETED' || a.status === 'CANCELLED');
+  const today = new Date();
+  const upcoming = appointments.filter(apt => {
+    const appointmentDate = new Date(apt.appointment_date);
+    return appointmentDate > today && (apt.status === 'Pending' || apt.status === 'Confirmed');
+  });
+  const past = appointments.filter(apt => {
+    const appointmentDate = new Date(apt.appointment_date);
+    return appointmentDate <= today || apt.status === 'Completed' || apt.status === 'Cancelled';
+  });
   const displayList = activeTab === 'upcoming' ? upcoming : past;
-
-  const counselors = MOCK_USERS.filter(u => u.role === Role.COUNSELOR && u.status === 'ACTIVE'); // In mock, might be empty if pending
 
   return (
     <>
@@ -60,35 +102,34 @@ const AppointmentsPage = () => {
             </div>
         ) : (
             displayList.map(apt => (
-                <div key={apt.id} className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div key={apt.appointment_id} className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-start gap-4">
-                        <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${apt.status === 'CONFIRMED' ? 'bg-green-100 text-green-600' : apt.status === 'PENDING' ? 'bg-yellow-100 text-yellow-600' : 'bg-slate-100 text-slate-500'}`}>
-                            {apt.status === 'CONFIRMED' && <CheckCircle2 className="h-6 w-6" />}
-                            {apt.status === 'PENDING' && <Clock className="h-6 w-6" />}
-                            {(apt.status === 'CANCELLED' || apt.status === 'COMPLETED') && <CalendarIcon className="h-6 w-6" />}
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${apt.status === 'Confirmed' ? 'bg-green-100 text-green-600' : apt.status === 'Pending' ? 'bg-yellow-100 text-yellow-600' : 'bg-slate-100 text-slate-500'}`}>
+                            {apt.status === 'Confirmed' && <CheckCircle2 className="h-6 w-6" />}
+                            {apt.status === 'Pending' && <Clock className="h-6 w-6" />}
+                            {(apt.status === 'Cancelled' || apt.status === 'Completed') && <CalendarIcon className="h-6 w-6" />}
                         </div>
                         <div>
-                            <h3 className="font-bold text-slate-900">{apt.counselorName}</h3>
+                            <h3 className="font-bold text-slate-900">{apt.therapist_name}</h3>
                             <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-500 mt-1">
-                                <span className="flex items-center"><CalendarIcon className="h-4 w-4 mr-1"/> {apt.date}</span>
-                                <span className="flex items-center"><Clock className="h-4 w-4 mr-1"/> {apt.time}</span>
-                                <span className="flex items-center">
-                                    {apt.type === 'Online' ? <Video className="h-4 w-4 mr-1"/> : <MapPin className="h-4 w-4 mr-1"/>}
-                                    {apt.type}
-                                </span>
+                                <span className="flex items-center"><CalendarIcon className="h-4 w-4 mr-1"/> {apt.appointment_date}</span>
+                                <span className="flex items-center"><Clock className="h-4 w-4 mr-1"/> {apt.start_time} - {apt.end_time}</span>
                             </div>
+                            {apt.session_note && (
+                                <p className="text-sm text-slate-600 mt-2 italic">{apt.session_note}</p>
+                            )}
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
                         <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide
-                            ${apt.status === 'CONFIRMED' ? 'bg-green-50 text-green-700' : ''}
-                            ${apt.status === 'PENDING' ? 'bg-yellow-50 text-yellow-700' : ''}
-                            ${apt.status === 'CANCELLED' ? 'bg-red-50 text-red-700' : ''}
-                            ${apt.status === 'COMPLETED' ? 'bg-slate-100 text-slate-700' : ''}
+                            ${apt.status === 'Confirmed' ? 'bg-green-50 text-green-700' : ''}
+                            ${apt.status === 'Pending' ? 'bg-yellow-50 text-yellow-700' : ''}
+                            ${apt.status === 'Cancelled' ? 'bg-red-50 text-red-700' : ''}
+                            ${apt.status === 'Completed' ? 'bg-slate-100 text-slate-700' : ''}
                         `}>
                             {apt.status}
                         </div>
-                        {apt.status === 'PENDING' && (
+                        {apt.status === 'Pending' && (
                             <button className="text-sm text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors border border-transparent hover:border-red-100">
                                 Cancel
                             </button>
