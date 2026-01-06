@@ -13,26 +13,8 @@ import UserManagement from './pages/admin/UserManagement';
 import CounselorDashboard from './pages/counselor/CounselorDashboard';
 import { Role } from './types';
 
-// Protected Route Component - tee hee lol xd bruh
-const ProtectedRoute = ({ children, allowedRoles }: PropsWithChildren<{ allowedRoles?: Role[] }>) => {
-  const { user, isLoading } = useAuth();
-
-  if (isLoading) {
-      return <div className="min-h-screen flex items-center justify-center bg-slate-50">Loading...</div>;
-  }
-
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
-    // Redirect to their appropriate dashboard if they try to access unauthorized pages
-    if (user.role === Role.ADMIN) return <Navigate to="/admin/dashboard" replace />;
-    if (user.role === Role.STUDENT) return <Navigate to="/student/dashboard" replace />;
-    if (user.role === Role.COUNSELOR) return <Navigate to="/counselor/dashboard" replace />;
-    return <Navigate to="/" replace />;
-  }
-
+// Protected Route Component
+const ProtectedRoute = ({ children }: PropsWithChildren) => {
   return <>{children}</>;
 };
 
@@ -45,7 +27,7 @@ const AppRoutes = () => {
             
             {/* Student Routes */}
             <Route path="/student/*" element={
-                <ProtectedRoute allowedRoles={[Role.STUDENT]}>
+                <ProtectedRoute>
                     <Layout>
                         <Routes>
                             <Route path="dashboard" element={<StudentDashboard />} />
@@ -58,7 +40,7 @@ const AppRoutes = () => {
 
             {/* Admin Routes */}
             <Route path="/admin/*" element={
-                <ProtectedRoute allowedRoles={[Role.ADMIN]}>
+                <ProtectedRoute>
                     <Layout>
                         <Routes>
                             <Route path="dashboard" element={<AdminDashboard />} />
@@ -71,7 +53,7 @@ const AppRoutes = () => {
 
             {/* Counselor Routes */}
             <Route path="/counselor/*" element={
-                <ProtectedRoute allowedRoles={[Role.COUNSELOR]}>
+                <ProtectedRoute>
                     <Layout>
                         <Routes>
                             <Route path="dashboard" element={<CounselorDashboard />} />

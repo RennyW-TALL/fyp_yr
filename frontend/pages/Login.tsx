@@ -22,48 +22,9 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (formData.password.length < 6) {
-      setMessage({ type: 'error', text: 'Password must be at least 6 characters long' });
-      return;
-    }
-
     setLoading(true);
     setMessage({ type: '', text: '' });
 
-    try {
-      const response = await fetch('http://13.251.172.57/API/auth/login.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setMessage({ type: 'success', text: `Login successful as ${data.user.role.toUpperCase()}! Redirecting...` });
-        
-        // Store user data in localStorage
-        localStorage.setItem('user', JSON.stringify(data.user));
-        
-        // Debug log
-        console.log('Login successful, user role:', data.user.role);
-        
-        // For now, redirect all users to home page since dashboard routes may not exist
-        setTimeout(() => {
-          navigate('/');
-        }, 1500);
-      } else {
-        setMessage({ type: 'error', text: data.message || 'Login failed' });
-      }
-    } catch (error) {
-      setMessage({ type: 'error', text: 'Network error. Please try again.' });
-    } finally {
-      setLoading(false);
-    }
-
-    // Static login fallback
     const staticUsers = {
       'student1': { role: 'student', password: 'abc123' },
       'counselor1': { role: 'counselor', password: 'abc123' },
@@ -84,14 +45,18 @@ const Login = () => {
       
       setTimeout(() => {
         if (user.role === 'student') {
-          window.location.href = '/student/studentdashboard';
+          navigate('/student/dashboard');
         } else if (user.role === 'counselor') {
-          window.location.href = '/counselor/counselordashboard';
+          navigate('/counselor/dashboard');
         } else if (user.role === 'admin') {
-          window.location.href = '/admin/admindashboard';
+          navigate('/admin/dashboard');
         }
       }, 1500);
+    } else {
+      setMessage({ type: 'error', text: 'Invalid username or password' });
     }
+    
+    setLoading(false);
   };
 
   return (
@@ -144,7 +109,6 @@ const Login = () => {
                     name="password"
                     type={showPassword ? 'text' : 'password'}
                     required
-                    minLength={6}
                     className="w-full px-4 py-3 pr-12 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all bg-slate-50/50"
                     placeholder="Enter your password"
                     value={formData.password}
@@ -182,15 +146,6 @@ const Login = () => {
             >
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
-            
-            <div className="text-center">
-              <p className="text-sm text-slate-600">
-                Don't have an account?{' '}
-                <Link to="/register" className="font-semibold text-indigo-600 hover:text-indigo-700 transition-colors">
-                  Create one here
-                </Link>
-              </p>
-            </div>
           </form>
 
           {/* Static Login Info */}
@@ -200,40 +155,6 @@ const Login = () => {
               <div>Student: <code className="bg-white px-1 rounded">student1</code> / <code className="bg-white px-1 rounded">abc123</code></div>
               <div>Counselor: <code className="bg-white px-1 rounded">counselor1</code> / <code className="bg-white px-1 rounded">abc123</code></div>
               <div>Admin: <code className="bg-white px-1 rounded">admin01</code> / <code className="bg-white px-1 rounded">abc123</code></div>
-            </div>
-            
-            {/* Quick Access Buttons */}
-            <div className="mt-3 space-y-2">
-              <h4 className="text-xs font-semibold text-slate-700">Quick Access (Skip Login):</h4>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => {
-                    localStorage.setItem('user', JSON.stringify({ username: 'student1', role: 'student' }));
-                    window.location.href = '/student/studentdashboard';
-                  }}
-                  className="px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded hover:bg-blue-200"
-                >
-                  Student
-                </button>
-                <button
-                  onClick={() => {
-                    localStorage.setItem('user', JSON.stringify({ username: 'counselor1', role: 'counselor' }));
-                    window.location.href = '/counselor/counselordashboard';
-                  }}
-                  className="px-3 py-1 bg-green-100 text-green-700 text-xs rounded hover:bg-green-200"
-                >
-                  Counselor
-                </button>
-                <button
-                  onClick={() => {
-                    localStorage.setItem('user', JSON.stringify({ username: 'admin01', role: 'admin' }));
-                    window.location.href = '/admin/admindashboard';
-                  }}
-                  className="px-3 py-1 bg-purple-100 text-purple-700 text-xs rounded hover:bg-purple-200"
-                >
-                  Admin
-                </button>
-              </div>
             </div>
           </div>
         </div>
