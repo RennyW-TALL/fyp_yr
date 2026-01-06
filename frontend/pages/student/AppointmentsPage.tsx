@@ -21,33 +21,68 @@ const AppointmentsPage = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
   const [showBookingModal, setShowBookingModal] = useState(false);
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  
-  useEffect(() => {
-    loadAppointments();
-  }, []);
-
-  const loadAppointments = async () => {
-    try {
-      const response = await fetch('/data/appointments.csv');
-      const csvText = await response.text();
-      const lines = csvText.split('\n');
-      const headers = lines[0].split(',');
-      
-      const appointmentData = lines.slice(1).filter(line => line.trim()).map(line => {
-        const values = line.split(',');
-        const appointment: any = {};
-        headers.forEach((header, index) => {
-          appointment[header.trim()] = values[index]?.trim() || '';
-        });
-        return appointment as Appointment;
-      });
-      
-      setAppointments(appointmentData);
-    } catch (error) {
-      console.error('Error loading appointments:', error);
+  const appointments: Appointment[] = [
+    {
+      appointment_id: 1,
+      therapist_name: 'Dr. John Smith',
+      appointment_date: '2025-03-10',
+      start_time: '10:00:00',
+      end_time: '11:00:00',
+      status: 'Completed',
+      session_note: 'The session went well, the patient showed significant improvement in their mood and behavior.',
+      created_at: '2024-12-01 10:00:00'
+    },
+    {
+      appointment_id: 2,
+      therapist_name: 'Dr. Mei Lee',
+      appointment_date: '2026-04-15',
+      start_time: '11:00:00',
+      end_time: '12:00:00',
+      status: 'Pending',
+      created_at: '2025-01-01 14:00:00'
+    },
+    {
+      appointment_id: 3,
+      therapist_name: 'Dr. Wilson House',
+      appointment_date: '2026-05-20',
+      start_time: '14:00:00',
+      end_time: '15:00:00',
+      status: 'Confirmed',
+      created_at: '2025-01-10 11:00:00'
+    },
+    {
+      appointment_id: 4,
+      therapist_name: 'Dr. John Smith',
+      appointment_date: '2026-06-10',
+      start_time: '09:00:00',
+      end_time: '10:00:00',
+      status: 'Cancelled',
+      cancel_reason: 'User no-show',
+      cancelled_at: '2026-06-10 08:30:00',
+      session_note: 'The appointment was cancelled as the patient did not show up.',
+      created_at: '2025-01-20 13:00:00'
+    },
+    {
+      appointment_id: 5,
+      therapist_name: 'Dr. Mei Lee',
+      appointment_date: '2026-07-10',
+      start_time: '16:00:00',
+      end_time: '17:00:00',
+      status: 'Completed',
+      session_note: 'The session was very productive, the patient made good progress in addressing their stress.',
+      created_at: '2025-02-01 15:00:00'
+    },
+    {
+      appointment_id: 6,
+      therapist_name: 'Dr. Wilson House',
+      appointment_date: '2026-08-05',
+      start_time: '10:00:00',
+      end_time: '11:00:00',
+      status: 'Completed',
+      session_note: 'The patient showed great engagement during the session and discussed their coping mechanisms.',
+      created_at: '2025-02-15 10:30:00'
     }
-  };
+  ];
   
   // Filters
   const today = new Date();
@@ -55,11 +90,8 @@ const AppointmentsPage = () => {
     const appointmentDate = new Date(apt.appointment_date);
     return appointmentDate > today && (apt.status === 'Pending' || apt.status === 'Confirmed');
   });
-  const past = appointments.filter(apt => {
-    const appointmentDate = new Date(apt.appointment_date);
-    return appointmentDate <= today || apt.status === 'Completed' || apt.status === 'Cancelled';
-  });
-  const displayList = activeTab === 'upcoming' ? upcoming : past;
+  const allAppointments = appointments;
+  const displayList = activeTab === 'upcoming' ? upcoming : allAppointments;
 
   return (
     <>
@@ -88,7 +120,7 @@ const AppointmentsPage = () => {
             onClick={() => setActiveTab('past')}
             className={`px-6 py-3 font-medium text-sm transition-colors border-b-2 ${activeTab === 'past' ? 'border-brand-600 text-brand-600' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
         >
-            Past History
+            All Appointments
         </button>
       </div>
 

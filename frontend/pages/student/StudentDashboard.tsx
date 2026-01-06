@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { MessageSquare, Calendar, ArrowRight, BookOpen, Users } from 'lucide-react';
+import { Calendar, ArrowRight, BookOpen, Users } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import StudentHeader from '../../components/StudentHeader';
 import TherapistCard from '../../components/TherapistCard';
@@ -29,33 +29,69 @@ interface Therapist {
 
 const StudentDashboard = () => {
   const { user } = useAuth();
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
   
-  useEffect(() => {
-    loadAppointments();
-  }, []);
-
-  const loadAppointments = async () => {
-    try {
-      const response = await fetch('/data/appointments.csv');
-      const csvText = await response.text();
-      const lines = csvText.split('\n');
-      const headers = lines[0].split(',');
-      
-      const appointmentData = lines.slice(1).filter(line => line.trim()).map(line => {
-        const values = line.split(',');
-        const appointment: any = {};
-        headers.forEach((header, index) => {
-          appointment[header.trim()] = values[index]?.trim() || '';
-        });
-        return appointment as Appointment;
-      });
-      
-      setAppointments(appointmentData);
-    } catch (error) {
-      console.error('Error loading appointments:', error);
+  const appointments: Appointment[] = [
+    {
+      appointment_id: 1,
+      therapist_name: 'Dr. John Smith',
+      appointment_date: '2025-03-10',
+      start_time: '10:00:00',
+      end_time: '11:00:00',
+      status: 'Completed',
+      session_note: 'The session went well, the patient showed significant improvement in their mood and behavior.',
+      created_at: '2024-12-01 10:00:00'
+    },
+    {
+      appointment_id: 2,
+      therapist_name: 'Dr. Mei Lee',
+      appointment_date: '2026-04-15',
+      start_time: '11:00:00',
+      end_time: '12:00:00',
+      status: 'Pending',
+      created_at: '2025-01-01 14:00:00'
+    },
+    {
+      appointment_id: 3,
+      therapist_name: 'Dr. Wilson House',
+      appointment_date: '2026-05-20',
+      start_time: '14:00:00',
+      end_time: '15:00:00',
+      status: 'Confirmed',
+      created_at: '2025-01-10 11:00:00'
+    },
+    {
+      appointment_id: 4,
+      therapist_name: 'Dr. John Smith',
+      appointment_date: '2026-06-10',
+      start_time: '09:00:00',
+      end_time: '10:00:00',
+      status: 'Cancelled',
+      cancel_reason: 'User no-show',
+      cancelled_at: '2026-06-10 08:30:00',
+      session_note: 'The appointment was cancelled as the patient did not show up.',
+      created_at: '2025-01-20 13:00:00'
+    },
+    {
+      appointment_id: 5,
+      therapist_name: 'Dr. Mei Lee',
+      appointment_date: '2026-07-10',
+      start_time: '16:00:00',
+      end_time: '17:00:00',
+      status: 'Completed',
+      session_note: 'The session was very productive, the patient made good progress in addressing their stress.',
+      created_at: '2025-02-01 15:00:00'
+    },
+    {
+      appointment_id: 6,
+      therapist_name: 'Dr. Wilson House',
+      appointment_date: '2026-08-05',
+      start_time: '10:00:00',
+      end_time: '11:00:00',
+      status: 'Completed',
+      session_note: 'The patient showed great engagement during the session and discussed their coping mechanisms.',
+      created_at: '2025-02-15 10:30:00'
     }
-  };
+  ];
 
   const getUpcomingAppointment = () => {
     const today = new Date();
@@ -99,25 +135,16 @@ const StudentDashboard = () => {
         <p className="text-slate-500">How are you feeling today?</p>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="grid md:grid-cols-2 gap-6">
         {/* Quick Actions */}
-        <div className="md:col-span-2 grid sm:grid-cols-2 gap-4">
-            <Link to="/student/chat" className="p-6 bg-gradient-to-br from-brand-500 to-brand-600 rounded-2xl shadow-lg text-white hover:shadow-brand-200/50 transition-all hover:-translate-y-1">
+        <div className="grid gap-4">
+            <Link to="/student/appointments" className="p-6 bg-gradient-to-br from-brand-500 to-brand-600 rounded-2xl shadow-lg text-white hover:shadow-brand-200/50 transition-all hover:-translate-y-1">
                 <div className="bg-white/20 w-12 h-12 rounded-xl flex items-center justify-center mb-4">
-                    <MessageSquare className="h-6 w-6 text-white" />
+                    <Calendar className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="text-lg font-bold mb-1">Talk to AI Assistant</h3>
-                <p className="text-brand-100 text-sm mb-4">Feeling overwhelmed? Chat safely and privately.</p>
-                <div className="flex items-center text-sm font-medium">Start Chat <ArrowRight className="ml-2 h-4 w-4"/></div>
-            </Link>
-
-            <Link to="/student/appointments" className="p-6 bg-white border border-slate-200 rounded-2xl shadow-sm hover:border-brand-200 hover:shadow-md transition-all">
-                <div className="bg-green-100 w-12 h-12 rounded-xl flex items-center justify-center mb-4">
-                    <Calendar className="h-6 w-6 text-green-600" />
-                </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-1">Book Counseling</h3>
-                <p className="text-slate-500 text-sm mb-4">Schedule a session with a certified counselor.</p>
-                <div className="flex items-center text-sm font-medium text-brand-600">Schedule Now <ArrowRight className="ml-2 h-4 w-4"/></div>
+                <h3 className="text-lg font-bold mb-1">View Appointments</h3>
+                <p className="text-brand-100 text-sm mb-4">Manage your counseling sessions and bookings.</p>
+                <div className="flex items-center text-sm font-medium">View All <ArrowRight className="ml-2 h-4 w-4"/></div>
             </Link>
         </div>
 
