@@ -20,7 +20,7 @@ const Landing = () => {
                 <span className="text-xl font-bold text-slate-900">MindCare APU</span>
             </div>
             <div className="flex items-center gap-4">
-                <Link to="/register" className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg">
+                <Link to="/login" className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition-all transform hover:scale-105 shadow-lg">
                     Login / Register
                 </Link>
             </div>

@@ -47,20 +47,13 @@ const Login = () => {
         // Store user data in localStorage
         localStorage.setItem('user', JSON.stringify(data.user));
         
-        // Redirect based on role
-        switch (data.user.role) {
-          case 'student':
-            navigate('/student/dashboard');
-            break;
-          case 'counselor':
-            navigate('/counselor/dashboard');
-            break;
-          case 'admin':
-            navigate('/admin/dashboard');
-            break;
-          default:
-            navigate('/');
-        }
+        // Debug log
+        console.log('Login successful, user role:', data.user.role);
+        
+        // For now, redirect all users to home page since dashboard routes may not exist
+        setTimeout(() => {
+          navigate('/');
+        }, 1500);
       } else {
         setMessage({ type: 'error', text: data.message || 'Login failed' });
       }
