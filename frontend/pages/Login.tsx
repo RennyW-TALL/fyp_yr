@@ -84,11 +84,11 @@ const Login = () => {
       
       setTimeout(() => {
         if (user.role === 'student') {
-          navigate('/student/dashboard');
+          navigate('/student/studentdashboard');
         } else if (user.role === 'counselor') {
-          navigate('/counselor/dashboard');
+          navigate('/counselor/counselordashboard');
         } else if (user.role === 'admin') {
-          navigate('/admin/dashboard');
+          navigate('/admin/admindashboard');
         }
       }, 1500);
     }
