@@ -9,7 +9,7 @@ const Landing = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost/FYP_OfficialCode/backend/API/users/list.php')
+    fetch('http://13.251.172.57/FYP_OfficialCode/backend/API/users/list.php')
 
       .then(response => response.json())
       .then(data => {
