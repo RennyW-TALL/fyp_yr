@@ -8,8 +8,9 @@ const Landing = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  //testing the conection
   useEffect(() => {
-    fetch('http://13.251.172.57/FYP_OfficialCode/backend/API/users/list.php')
+    fetch('http://13.251.172.57:8080/API/users/list.php')
 
       .then(response => response.json())
       .then(data => {
