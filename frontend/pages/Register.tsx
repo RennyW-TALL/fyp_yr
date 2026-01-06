@@ -55,18 +55,16 @@ const Register = () => {
         email: formData.email,
         password: formData.password,
         role: userType,
+        fullName: formData.full_name,
         ...(userType === 'student' ? {
-          tp_number: formData.tp_number,
-          full_name: formData.full_name,
+          tpNumber: formData.tp_number,
           gender: formData.gender,
-          age: parseInt(formData.age),
+          age: parseInt(formData.age) || null,
           course: formData.course,
-          year_of_study: parseInt(formData.year_of_study)
+          yearOfStudy: parseInt(formData.year_of_study) || null
         } : {
-          full_name: formData.full_name,
           gender: formData.gender,
-          specialization: formData.specialization,
-          max_daily_sessions: parseInt(formData.max_daily_sessions)
+          specialization: formData.specialization
         })
       };
 
