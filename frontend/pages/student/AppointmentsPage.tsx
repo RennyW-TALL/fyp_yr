@@ -21,7 +21,16 @@ const AppointmentsPage = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming');
   const [showBookingModal, setShowBookingModal] = useState(false);
-  const appointments: Appointment[] = [
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancellingAppointment, setCancellingAppointment] = useState<Appointment | null>(null);
+  const [cancelReason, setCancelReason] = useState('');
+  const [bookingForm, setBookingForm] = useState({
+    therapist: '',
+    date: '',
+    time: ''
+  });
+  
+  const [appointments, setAppointments] = useState<Appointment[]>([
     {
       appointment_id: 1,
       therapist_name: 'Dr. John Smith',
@@ -82,7 +91,48 @@ const AppointmentsPage = () => {
       session_note: 'The patient showed great engagement during the session and discussed their coping mechanisms.',
       created_at: '2025-02-15 10:30:00'
     }
-  ];
+  ]);
+
+  const therapists = ['Dr. John Smith', 'Dr. Mei Lee', 'Dr. Wilson House'];
+
+  const handleCancelClick = (appointment: Appointment) => {
+    setCancellingAppointment(appointment);
+    setShowCancelModal(true);
+  };
+
+  const handleCancelConfirm = () => {
+    if (cancellingAppointment && cancelReason.trim()) {
+      setAppointments(prev => prev.map(apt => 
+        apt.appointment_id === cancellingAppointment.appointment_id 
+          ? { ...apt, status: 'Cancelled', cancel_reason: cancelReason, cancelled_at: new Date().toISOString() }
+          : apt
+      ));
+      setShowCancelModal(false);
+      setCancellingAppointment(null);
+      setCancelReason('');
+    }
+  };
+
+  const handleBookingSubmit = () => {
+    if (bookingForm.therapist && bookingForm.date && bookingForm.time) {
+      const endTime = new Date(`2000-01-01 ${bookingForm.time}`);
+      endTime.setHours(endTime.getHours() + 1);
+      
+      const newAppointment: Appointment = {
+        appointment_id: Math.max(...appointments.map(a => a.appointment_id)) + 1,
+        therapist_name: bookingForm.therapist,
+        appointment_date: bookingForm.date,
+        start_time: bookingForm.time + ':00',
+        end_time: endTime.toTimeString().slice(0, 8),
+        status: 'Pending',
+        created_at: new Date().toISOString()
+      };
+      
+      setAppointments(prev => [...prev, newAppointment]);
+      setShowBookingModal(false);
+      setBookingForm({ therapist: '', date: '', time: '' });
+    }
+  };
   
   // Filters
   const today = new Date();
@@ -162,7 +212,10 @@ const AppointmentsPage = () => {
                             {apt.status}
                         </div>
                         {apt.status === 'Pending' && (
-                            <button className="text-sm text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors border border-transparent hover:border-red-100">
+                            <button 
+                                onClick={() => handleCancelClick(apt)}
+                                className="text-sm text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg transition-colors border border-transparent hover:border-red-100"
+                            >
                                 Cancel
                             </button>
                         )}
@@ -185,19 +238,35 @@ const AppointmentsPage = () => {
                 <div className="p-6 space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">Select Counselor</label>
-                        <select className="w-full p-2 border border-slate-300 rounded-lg">
-                            <option>Dr. Sarah Counselor</option>
-                            <option>Mr. David Smith (Available)</option>
+                        <select 
+                            value={bookingForm.therapist}
+                            onChange={(e) => setBookingForm({...bookingForm, therapist: e.target.value})}
+                            className="w-full p-2 border border-slate-300 rounded-lg"
+                        >
+                            <option value="">Choose a therapist</option>
+                            {therapists.map(therapist => (
+                                <option key={therapist} value={therapist}>{therapist}</option>
+                            ))}
                         </select>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">Date</label>
-                            <input type="date" className="w-full p-2 border border-slate-300 rounded-lg" />
+                            <input 
+                                type="date" 
+                                value={bookingForm.date}
+                                onChange={(e) => setBookingForm({...bookingForm, date: e.target.value})}
+                                className="w-full p-2 border border-slate-300 rounded-lg" 
+                            />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">Time</label>
-                            <input type="time" className="w-full p-2 border border-slate-300 rounded-lg" />
+                            <input 
+                                type="time" 
+                                value={bookingForm.time}
+                                onChange={(e) => setBookingForm({...bookingForm, time: e.target.value})}
+                                className="w-full p-2 border border-slate-300 rounded-lg" 
+                            />
                         </div>
                     </div>
                     <div>
@@ -220,7 +289,51 @@ const AppointmentsPage = () => {
                 </div>
                 <div className="p-6 bg-slate-50 flex justify-end gap-3">
                     <button onClick={() => setShowBookingModal(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-200 rounded-lg transition-colors">Cancel</button>
-                    <button onClick={() => setShowBookingModal(false)} className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors">Submit Request</button>
+                    <button onClick={handleBookingSubmit} className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors">Submit Request</button>
+                </div>
+            </div>
+        </div>
+      )}
+
+      {/* Cancel Confirmation Modal */}
+      {showCancelModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
+                <div className="px-6 py-4 border-b border-slate-100">
+                    <h3 className="text-lg font-bold text-slate-900">Cancel Appointment</h3>
+                </div>
+                <div className="p-6 space-y-4">
+                    <p className="text-slate-600">Are you sure you want to cancel your appointment with {cancellingAppointment?.therapist_name}?</p>
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-1">Cancellation Reason *</label>
+                        <textarea 
+                            value={cancelReason}
+                            onChange={(e) => setCancelReason(e.target.value)}
+                            className="w-full p-2 border border-slate-300 rounded-lg text-sm" 
+                            rows={3} 
+                            placeholder="Please provide a reason for cancellation..."
+                            required
+                        />
+                    </div>
+                </div>
+                <div className="p-6 bg-slate-50 flex justify-end gap-3">
+                    <button 
+                        onClick={() => {
+                            setShowCancelModal(false);
+                            setCancellingAppointment(null);
+                            setCancelReason('');
+                        }} 
+                        className="px-4 py-2 text-slate-600 hover:bg-slate-200 rounded-lg transition-colors"
+                    >
+                        Keep Appointment
+                    </button>
+                    <button 
+                        onClick={handleCancelConfirm}
+                        disabled={!cancelReason.trim()}
+                        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        Cancel Appointment
+                    </button>
                 </div>
             </div>
         </div>

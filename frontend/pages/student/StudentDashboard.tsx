@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, ArrowRight, BookOpen, Users } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -30,7 +30,7 @@ interface Therapist {
 const StudentDashboard = () => {
   const { user } = useAuth();
   
-  const appointments: Appointment[] = [
+  const [appointments] = useState<Appointment[]>([
     {
       appointment_id: 1,
       therapist_name: 'Dr. John Smith',
@@ -91,7 +91,7 @@ const StudentDashboard = () => {
       session_note: 'The patient showed great engagement during the session and discussed their coping mechanisms.',
       created_at: '2025-02-15 10:30:00'
     }
-  ];
+  ]);
 
   const getUpcomingAppointment = () => {
     const today = new Date();

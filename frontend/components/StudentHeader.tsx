@@ -1,9 +1,27 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Brain, User, Calendar } from 'lucide-react';
+import React, { useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Brain, User, Calendar, LogOut, ChevronDown } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 
 const StudentHeader = () => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+
+  const studentProfile = {
+    name: 'Wong Yi Ren',
+    username: 'student1',
+    gender: 'Male',
+    age: 21,
+    course: 'Computer Science',
+    year: 3
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <header className="bg-white border-b border-slate-200 shadow-sm">
@@ -30,13 +48,52 @@ const StudentHeader = () => {
             <span className="font-medium">Appointments</span>
           </Link>
 
-          {/* User Profile */}
-          <div className="flex items-center gap-2 px-3 py-2 bg-slate-100 rounded-lg">
-            <User className="h-5 w-5 text-slate-600" />
-            <span className="text-sm font-medium text-slate-700">Student</span>
+          {/* User Profile Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+              className="flex items-center gap-2 px-3 py-2 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors"
+            >
+              <User className="h-5 w-5 text-slate-600" />
+              <span className="text-sm font-medium text-slate-700">{studentProfile.name}</span>
+              <ChevronDown className="h-4 w-4 text-slate-600" />
+            </button>
+
+            {showProfileDropdown && (
+              <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-slate-200 z-50">
+                <div className="p-4 border-b border-slate-100">
+                  <h3 className="font-semibold text-slate-900 mb-2">Profile</h3>
+                  <div className="space-y-1 text-sm text-slate-600">
+                    <div><span className="font-medium">Name:</span> {studentProfile.name}</div>
+                    <div><span className="font-medium">Username:</span> {studentProfile.username}</div>
+                    <div><span className="font-medium">Gender:</span> {studentProfile.gender}</div>
+                    <div><span className="font-medium">Age:</span> {studentProfile.age}</div>
+                    <div><span className="font-medium">Course:</span> {studentProfile.course}</div>
+                    <div><span className="font-medium">Year:</span> {studentProfile.year}</div>
+                  </div>
+                </div>
+                <div className="p-2">
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span className="font-medium">Logout</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </nav>
       </div>
+      
+      {/* Backdrop to close dropdown */}
+      {showProfileDropdown && (
+        <div 
+          className="fixed inset-0 z-40" 
+          onClick={() => setShowProfileDropdown(false)}
+        />
+      )}
     </header>
   );
 };
