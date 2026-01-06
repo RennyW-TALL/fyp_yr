@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Brain, Eye, EyeOff } from 'lucide-react';
+import { Brain, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -47,22 +47,8 @@ const Login = () => {
         // Store user data in localStorage
         localStorage.setItem('user', JSON.stringify(data.user));
         
-        // Redirect based on role
-        setTimeout(() => {
-          switch (data.user.role) {
-            case 'student':
-              navigate('/student/dashboard');
-              break;
-            case 'counselor':
-              navigate('/counselor/dashboard');
-              break;
-            case 'admin':
-              navigate('/admin/dashboard');
-              break;
-            default:
-              navigate('/');
-          }
-        }, 1500);
+        // Redirect immediately using the URL from backend
+        navigate(data.redirectUrl || '/');
       } else {
         setMessage({ type: 'error', text: data.message || 'Login failed' });
       }
@@ -77,6 +63,10 @@ const Login = () => {
     <div className="min-h-screen bg-slate-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
         <div>
+          <Link to="/" className="flex items-center gap-2 text-brand-600 hover:text-brand-700 mb-6">
+            <ArrowLeft className="h-4 w-4" />
+            <span className="text-sm font-medium">Back to Main Page</span>
+          </Link>
           <Link to="/" className="flex items-center justify-center gap-2 mb-8">
             <Brain className="h-8 w-8 text-brand-600" />
             <span className="text-xl font-bold text-slate-900">MindCare APU</span>

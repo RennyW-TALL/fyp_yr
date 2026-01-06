@@ -31,9 +31,24 @@ if (!$user || $password !== $user["password"]) {
 $_SESSION["user_id"] = $user["user_id"];
 $_SESSION["role"] = $user["role"];
 
+// Determine redirect URL based on role
+$redirectUrl = "/";
+switch ($user["role"]) {
+    case "student":
+        $redirectUrl = "/student/dashboard";
+        break;
+    case "counselor":
+        $redirectUrl = "/counselor/dashboard";
+        break;
+    case "admin":
+        $redirectUrl = "/admin/dashboard";
+        break;
+}
+
 echo json_encode([
     "success" => true,
     "message" => "Login successful",
+    "redirectUrl" => $redirectUrl,
     "user" => [
         "id" => $user["user_id"],
         "username" => $user["username"],
