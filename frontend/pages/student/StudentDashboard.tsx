@@ -89,7 +89,6 @@ const StudentDashboard = () => {
       profileImage: '/images/therapists/dr-wilson-house.jpg'
     }
   ];
-  const nextAppointment = MOCK_APPOINTMENTS.find(a => a.studentId === user?.id && a.status === 'CONFIRMED');
 
   return (
     <>
