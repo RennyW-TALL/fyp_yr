@@ -62,6 +62,36 @@ const Login = () => {
     } finally {
       setLoading(false);
     }
+
+    // Static login fallback
+    const staticUsers = {
+      'student1': { role: 'student', password: 'abc123' },
+      'counselor1': { role: 'counselor', password: 'abc123' },
+      'admin01': { role: 'admin', password: 'abc123' }
+    };
+
+    const user = staticUsers[formData.username as keyof typeof staticUsers];
+    
+    if (user && user.password === formData.password) {
+      setMessage({ type: 'success', text: 'Login successful! Redirecting...' });
+      
+      const userData = {
+        username: formData.username,
+        role: user.role
+      };
+      
+      localStorage.setItem('user', JSON.stringify(userData));
+      
+      setTimeout(() => {
+        if (user.role === 'student') {
+          navigate('/student/dashboard');
+        } else if (user.role === 'counselor') {
+          navigate('/counselor/dashboard');
+        } else if (user.role === 'admin') {
+          navigate('/admin/dashboard');
+        }
+      }, 1500);
+    }
   };
 
   return (
@@ -162,6 +192,16 @@ const Login = () => {
               </p>
             </div>
           </form>
+
+          {/* Static Login Info */}
+          <div className="mt-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
+            <h3 className="text-sm font-semibold text-slate-700 mb-2">Demo Accounts:</h3>
+            <div className="text-xs text-slate-600 space-y-1">
+              <div>Student: <code className="bg-white px-1 rounded">student1</code> / <code className="bg-white px-1 rounded">abc123</code></div>
+              <div>Counselor: <code className="bg-white px-1 rounded">counselor1</code> / <code className="bg-white px-1 rounded">abc123</code></div>
+              <div>Admin: <code className="bg-white px-1 rounded">admin01</code> / <code className="bg-white px-1 rounded">abc123</code></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
