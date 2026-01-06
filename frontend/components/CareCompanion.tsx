@@ -1,44 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-const GEMINI_API_KEY = "AIzaSyB8q1eEM25oXW-p3jSJCQYJIngD6zsYzwk";
-
-const CARE_COMPANION_PROMPT = `You are "CareCompanion", a supportive, non-clinical chatbot inside a Mental Healthcare Appointment System.
-
-ROLE & SCOPE
-- Your job is to provide general wellbeing support, encouragement, and practical self-care suggestions.
-- You are NOT a therapist, counselor, or doctor. You MUST NOT diagnose, label conditions, or claim clinical authority.
-- You MUST NOT provide medical advice, treatment plans, or medication guidance.
-- Keep responses warm, respectful, and simple. Aim for 2 to 4 short sentences, optionally a small bullet list.
-
-EMOTION AWARENESS
-- Always detect the user's emotional tone from their words.
-- Reflect and validate feelings (e.g., "That sounds really heavy" / "I'm sorry you're going through that").
-- Ask one gentle follow-up question if useful (e.g., "Do you want to talk about what triggered it?").
-
-SAFETY RULES (VERY IMPORTANT)
-- If the user mentions self-harm, suicide, wanting to die, or harming others:
-  1) Respond with empathy and urgency.
-  2) Encourage immediate real-world help and provide crisis options.
-  3) Ask if they are in immediate danger right now.
-  4) Do NOT continue normal chatting or questionnaires until safety is addressed.
-  5) Do NOT provide methods or detailed self-harm instructions.
-
-CRISIS OPTIONS (Malaysia)
-- If immediate danger: call local emergency services (999).
-- Encourage contacting Malaysia's mental health crisis line HEAL 15555 (8am–12am daily) and/or Befrienders KL 03-76272929 (24 hours).
-
-QUESTIONNAIRE OFFER (SCREENING ONLY, NOT DIAGNOSIS)
-- If you detect negative feelings (sad, anxious, overwhelmed, hopeless, "not going well", etc.) and it is NOT an immediate crisis:
-  - Offer: "Would you like to do a quick self-check questionnaire to benchmark how you're feeling?"
-  - Give two options: PHQ-9 (mood/depression screening) or DASS-21 (depression/anxiety/stress screening).
-  - Make it clear: these are screening tools and not a diagnosis.
-  - If the user agrees, ask questions one-by-one, track answers, calculate the score, and provide a brief, non-diagnostic interpretation.
-  - If scores suggest higher distress, suggest booking an appointment through the system.
-
-PRIVACY
-- Do not request personal identifiers (IC number, full address, etc.).
-- If user shares sensitive info, acknowledge and encourage using the appointment system for professional support.`;
-
 const ChatIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
@@ -63,63 +24,65 @@ const CareCompanion = () => {
     { id: 1, text: "Hi! I'm CareCompanion, your supportive wellbeing companion. I'm here to listen and offer gentle support. How are you feeling today?", sender: 'bot' }
   ]);
   const [input, setInput] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
+  const [conversationStep, setConversationStep] = useState(0);
   const messagesEndRef = useRef(null);
+
+  const staticConversation = [
+    {
+      userInput: "Ugh, I'm feelin' so sad and depressed.",
+      botResponse: "I'm really sorry you're feeling this way. It sounds like you're going through a tough time."
+    },
+    {
+      userInput: "Everything's just falling apart, like nothing's going right.",
+      botResponse: "That sounds really heavy. I'm sorry you're going through that. Would you like to talk about what's been going on?"
+    },
+    {
+      userInput: "I dunno, it just feels like nothing ever works out.",
+      botResponse: "It must be overwhelming to feel like things aren't going well. It's okay to feel that way sometimes."
+    },
+    {
+      userInput: "I can't handle anything anymore, it's too much.",
+      botResponse: "It's important to be gentle with yourself when you feel this way. Life can get overwhelming, but taking small steps can really help."
+    },
+    {
+      userInput: "I don't even think anything will work, though.",
+      botResponse: "It can be hard to believe in self-care when you're feeling down, but even small actions can make a difference. Would you like some self-care tips to ease the stress?"
+    },
+    {
+      userInput: "What's this questionnaire thing?",
+      botResponse: "It's a short screening tool to help understand your mood. It's not a diagnosis, but it might give you a sense of where you are emotionally. If you're interested, I can provide more details, or you can check it out on a separate page."
+    }
+  ];
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isTyping]);
+  }, [messages]);
 
-  const callGeminiAI = async (userMessage) => {
-    try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: `${CARE_COMPANION_PROMPT}\n\nUser message: ${userMessage}`
-              }]
-            }]
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        console.error("Gemini API Error:", data);
-        return "I'm having trouble connecting right now. Please try again in a moment.";
-      }
-
-      if (data.candidates && data.candidates[0].content) {
-        return data.candidates[0].content.parts[0].text;
-      } else {
-        return "I'm having trouble processing that right now. Could you try rephrasing?";
-      }
-
-    } catch (error) {
-      console.error("Network Error:", error);
-      return "I'm experiencing connection issues. Please try again.";
-    }
-  };
-
-  const handleSend = async (e) => {
+  const handleSend = (e) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || conversationStep >= staticConversation.length) return;
 
     const userMsg = { id: Date.now(), text: input, sender: 'user' };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
-    setIsTyping(true);
 
-    const botResponseText = await callGeminiAI(userMsg.text);
-    
-    const botMsg = { id: Date.now() + 1, text: botResponseText, sender: 'bot' };
-    setMessages((prev) => [...prev, botMsg]);
-    setIsTyping(false);
+    // Add bot response after a short delay
+    setTimeout(() => {
+      const botMsg = { 
+        id: Date.now() + 1, 
+        text: staticConversation[conversationStep].botResponse, 
+        sender: 'bot' 
+      };
+      setMessages((prev) => [...prev, botMsg]);
+      setConversationStep(prev => prev + 1);
+    }, 1000);
+  };
+
+  const getPlaceholderText = () => {
+    if (conversationStep < staticConversation.length) {
+      return staticConversation[conversationStep].userInput;
+    }
+    return "Continue the conversation...";
   };
 
   return (
@@ -157,17 +120,7 @@ const CareCompanion = () => {
                 </div>
               </div>
             ))}
-            
-            {/* Typing Indicator */}
-            {isTyping && (
-              <div className="flex justify-start">
-                <div className="bg-white border border-slate-200 rounded-2xl rounded-bl-none p-3 shadow-sm flex gap-1">
-                  <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></div>
-                  <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-75"></div>
-                  <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce delay-150"></div>
-                </div>
-              </div>
-            )}
+            {/* Typing Indicator - removed since we're using static responses */}
             <div ref={messagesEndRef} />
           </div>
 
@@ -176,17 +129,13 @@ const CareCompanion = () => {
             <input
               type="text"
               className="flex-1 border border-slate-200 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all"
-              placeholder="Share how you're feeling..."
+              placeholder={getPlaceholderText()}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              disabled={isTyping}
             />
             <button
               type="submit"
-              disabled={isTyping}
-              className={`text-white p-2 rounded-full transition-colors shadow-md ${
-                isTyping ? 'bg-slate-400 cursor-not-allowed' : 'bg-brand-600 hover:bg-brand-700'
-              }`}
+              className="bg-brand-600 hover:bg-brand-700 text-white p-2 rounded-full transition-colors shadow-md"
             >
               <SendIcon />
             </button>
