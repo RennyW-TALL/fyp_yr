@@ -1,7 +1,36 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { generateBotResponse } from '../../services/geminiService';
 import { Send, User, Bot, Loader2, AlertTriangle, Phone } from 'lucide-react';
 import { ChatMessage } from '../../types';
+import CareCompanion from '../../components/CareCompanion';
+
+const GEMINI_API_KEY = "AIzaSyB8q1eEM25oXW-p3jSJCQYJIngD6zsYzwk";
+
+const callGeminiAI = async (userMessage: string, history: any[] = []) => {
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: `You are "CareCompanion", a supportive, non-clinical chatbot. Provide gentle wellbeing support. User: ${userMessage}`
+            }]
+          }]
+        }),
+      }
+    );
+
+    const data = await response.json();
+    if (data.candidates && data.candidates[0].content) {
+      return data.candidates[0].content.parts[0].text;
+    }
+    return "I'm having trouble right now. Please try again.";
+  } catch (error) {
+    return "I'm experiencing connection issues. Please try again.";
+  }
+};
 
 const ChatbotPage = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -42,7 +71,7 @@ const ChatbotPage = () => {
     try {
       // Build history for context (last 10 messages)
       const history = messages.slice(-10).map(m => ({ role: m.role, text: m.text }));
-      const responseText = await generateBotResponse(history, userMsg.text);
+      const responseText = await callGeminiAI(userMsg.text, history);
 
       const botMsg: ChatMessage = {
         id: (Date.now() + 1).toString(),
@@ -75,7 +104,8 @@ const ChatbotPage = () => {
   );
 
   return (
-    <div className="h-[calc(100vh-6rem)] flex flex-col bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+    <>
+      <div className="h-[calc(100vh-6rem)] flex flex-col bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
       {/* Disclaimer Banner */}
       <div className="bg-blue-50 px-4 py-2 text-xs text-blue-800 text-center border-b border-blue-100 flex items-center justify-center">
         <AlertTriangle className="h-3 w-3 mr-2" />
@@ -154,7 +184,9 @@ const ChatbotPage = () => {
             Messages are private and confidential. AI can make mistakes.
         </p>
       </div>
-    </div>
+      </div>
+      <CareCompanion />
+    </>
   );
 };
 
