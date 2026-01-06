@@ -3,6 +3,8 @@ import { MOCK_APPOINTMENTS, MOCK_USERS } from '../../constants';
 import { useAuth } from '../../context/AuthContext';
 import { Calendar as CalendarIcon, Clock, Video, MapPin, XCircle, Plus, CheckCircle2 } from 'lucide-react';
 import { Role } from '../../types';
+import StudentHeader from '../../components/StudentHeader';
+import CareCompanion from '../../components/CareCompanion';
 
 const AppointmentsPage = () => {
   const { user } = useAuth();
@@ -18,7 +20,9 @@ const AppointmentsPage = () => {
   const counselors = MOCK_USERS.filter(u => u.role === Role.COUNSELOR && u.status === 'ACTIVE'); // In mock, might be empty if pending
 
   return (
-    <div className="max-w-5xl mx-auto">
+    <>
+      <StudentHeader />
+      <div className="max-w-5xl mx-auto px-4 py-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-slate-900">My Appointments</h1>
         <button 
@@ -148,7 +152,9 @@ const AppointmentsPage = () => {
             </div>
         </div>
       )}
-    </div>
+      </div>
+      <CareCompanion />
+    </>
   );
 };
 

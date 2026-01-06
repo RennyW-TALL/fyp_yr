@@ -1,26 +1,48 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { MessageSquare, Calendar, Activity, ArrowRight, BookOpen } from 'lucide-react';
+import { MessageSquare, Calendar, ArrowRight, BookOpen, Users } from 'lucide-react';
 import { MOCK_APPOINTMENTS } from '../../constants';
 import { useAuth } from '../../context/AuthContext';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import StudentHeader from '../../components/StudentHeader';
+import TherapistCard from '../../components/TherapistCard';
+import CareCompanion from '../../components/CareCompanion';
 
-const moodData = [
-  { day: 'Mon', mood: 6 },
-  { day: 'Tue', mood: 7 },
-  { day: 'Wed', mood: 5 },
-  { day: 'Thu', mood: 8 },
-  { day: 'Fri', mood: 7 },
-  { day: 'Sat', mood: 9 },
-  { day: 'Sun', mood: 8 },
-];
+interface Therapist {
+  id: number;
+  name: string;
+  gender: string;
+  specialization: string;
+  profileImage: string;
+}
 
 const StudentDashboard = () => {
   const { user } = useAuth();
+  const [therapists, setTherapists] = useState<Therapist[]>([]);
+  const [loading, setLoading] = useState(true);
   const nextAppointment = MOCK_APPOINTMENTS.find(a => a.studentId === user?.id && a.status === 'CONFIRMED');
 
+  useEffect(() => {
+    fetchTherapists();
+  }, []);
+
+  const fetchTherapists = async () => {
+    try {
+      const response = await fetch('http://localhost/FYP_OfficialCode/backend/API/student/therapists.php');
+      const data = await response.json();
+      if (data.success) {
+        setTherapists(data.data);
+      }
+    } catch (error) {
+      console.error('Error fetching therapists:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <>
+      <StudentHeader />
+      <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-slate-900">Welcome back, {user?.name.split(' ')[0]} 👋</h1>
         <p className="text-slate-500">How are you feeling today?</p>
@@ -73,51 +95,60 @@ const StudentDashboard = () => {
         </div>
       </div>
 
-      {/* Mood Tracker & Resources */}
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-            <h3 className="font-bold text-slate-900 mb-6 flex items-center">
-                <Activity className="h-5 w-5 mr-2 text-brand-500" /> Weekly Mood Check-in
-            </h3>
-            <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={moodData}>
-                        <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fontSize: 12}} />
-                        <YAxis hide domain={[0, 10]} />
-                        <Tooltip cursor={{fill: '#f1f5f9'}} contentStyle={{borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'}} />
-                        <Bar dataKey="mood" fill="#38bdf8" radius={[4, 4, 0, 0]} barSize={32} />
-                    </BarChart>
-                </ResponsiveContainer>
-            </div>
-        </div>
+      {/* Available Therapists */}
+      <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+        <h3 className="font-bold text-slate-900 mb-6 flex items-center">
+          <Users className="h-5 w-5 mr-2 text-brand-500" /> Available Therapists
+        </h3>
+        {loading ? (
+          <div className="flex justify-center py-8">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {therapists.map((therapist) => (
+              <TherapistCard
+                key={therapist.id}
+                id={therapist.id}
+                name={therapist.name}
+                gender={therapist.gender}
+                specialization={therapist.specialization}
+                profileImage={therapist.profileImage}
+              />
+            ))}
+          </div>
+        )}
+      </div>
 
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-            <h3 className="font-bold text-slate-900 mb-4 flex items-center">
-                <BookOpen className="h-5 w-5 mr-2 text-brand-500" /> Self-Assessment Tools
-            </h3>
-            <div className="space-y-3">
-                <div className="flex items-center justify-between p-4 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer">
-                    <div>
-                        <h4 className="font-semibold text-slate-800">PHQ-9 Assessment</h4>
-                        <p className="text-xs text-slate-500">Screening for depressive symptoms</p>
-                    </div>
-                    <button className="text-sm font-medium text-brand-600 bg-white px-3 py-1.5 border border-slate-200 rounded-lg shadow-sm">Start</button>
-                </div>
-                <div className="flex items-center justify-between p-4 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer">
-                    <div>
-                        <h4 className="font-semibold text-slate-800">DASS-21 Assessment</h4>
-                        <p className="text-xs text-slate-500">Depression, Anxiety & Stress Scale</p>
-                    </div>
-                    <button className="text-sm font-medium text-brand-600 bg-white px-3 py-1.5 border border-slate-200 rounded-lg shadow-sm">Start</button>
-                </div>
+      {/* Self-Assessment Tools */}
+      <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+        <h3 className="font-bold text-slate-900 mb-4 flex items-center">
+          <BookOpen className="h-5 w-5 mr-2 text-brand-500" /> Self-Assessment Tools
+        </h3>
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="flex items-center justify-between p-4 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer">
+            <div>
+              <h4 className="font-semibold text-slate-800">PHQ-9 Assessment</h4>
+              <p className="text-xs text-slate-500">Screening for depressive symptoms</p>
             </div>
-            <div className="mt-6 p-4 bg-yellow-50 rounded-xl border border-yellow-100">
-                <h4 className="text-sm font-bold text-yellow-800 mb-1">Note:</h4>
-                <p className="text-xs text-yellow-700">These tools are for screening only and do not provide a medical diagnosis. Results are private.</p>
+            <button className="text-sm font-medium text-brand-600 bg-white px-3 py-1.5 border border-slate-200 rounded-lg shadow-sm">Start</button>
+          </div>
+          <div className="flex items-center justify-between p-4 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer">
+            <div>
+              <h4 className="font-semibold text-slate-800">DASS-21 Assessment</h4>
+              <p className="text-xs text-slate-500">Depression, Anxiety & Stress Scale</p>
             </div>
+            <button className="text-sm font-medium text-brand-600 bg-white px-3 py-1.5 border border-slate-200 rounded-lg shadow-sm">Start</button>
+          </div>
+        </div>
+        <div className="mt-4 p-4 bg-yellow-50 rounded-xl border border-yellow-100">
+          <h4 className="text-sm font-bold text-yellow-800 mb-1">Note:</h4>
+          <p className="text-xs text-yellow-700">These tools are for screening only and do not provide a medical diagnosis. Results are private.</p>
         </div>
       </div>
-    </div>
+      </div>
+      <CareCompanion />
+    </>
   );
 };
 
