@@ -201,6 +201,40 @@ const Login = () => {
               <div>Counselor: <code className="bg-white px-1 rounded">counselor1</code> / <code className="bg-white px-1 rounded">abc123</code></div>
               <div>Admin: <code className="bg-white px-1 rounded">admin01</code> / <code className="bg-white px-1 rounded">abc123</code></div>
             </div>
+            
+            {/* Quick Access Buttons */}
+            <div className="mt-3 space-y-2">
+              <h4 className="text-xs font-semibold text-slate-700">Quick Access (Skip Login):</h4>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    localStorage.setItem('user', JSON.stringify({ username: 'student1', role: 'student' }));
+                    navigate('/student/studentdashboard');
+                  }}
+                  className="px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded hover:bg-blue-200"
+                >
+                  Student
+                </button>
+                <button
+                  onClick={() => {
+                    localStorage.setItem('user', JSON.stringify({ username: 'counselor1', role: 'counselor' }));
+                    navigate('/counselor/counselordashboard');
+                  }}
+                  className="px-3 py-1 bg-green-100 text-green-700 text-xs rounded hover:bg-green-200"
+                >
+                  Counselor
+                </button>
+                <button
+                  onClick={() => {
+                    localStorage.setItem('user', JSON.stringify({ username: 'admin01', role: 'admin' }));
+                    navigate('/admin/admindashboard');
+                  }}
+                  className="px-3 py-1 bg-purple-100 text-purple-700 text-xs rounded hover:bg-purple-200"
+                >
+                  Admin
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
