@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { MessageSquare, Calendar, ArrowRight, BookOpen, Users } from 'lucide-react';
 import { MOCK_APPOINTMENTS } from '../../constants';
@@ -17,27 +17,30 @@ interface Therapist {
 
 const StudentDashboard = () => {
   const { user } = useAuth();
-  const [therapists, setTherapists] = useState<Therapist[]>([]);
-  const [loading, setLoading] = useState(true);
-  const nextAppointment = MOCK_APPOINTMENTS.find(a => a.studentId === user?.id && a.status === 'CONFIRMED');
-
-  useEffect(() => {
-    fetchTherapists();
-  }, []);
-
-  const fetchTherapists = async () => {
-    try {
-      const response = await fetch('http://localhost/FYP_OfficialCode/backend/API/student/therapists.php');
-      const data = await response.json();
-      if (data.success) {
-        setTherapists(data.data);
-      }
-    } catch (error) {
-      console.error('Error fetching therapists:', error);
-    } finally {
-      setLoading(false);
+  const therapists: Therapist[] = [
+    {
+      id: 1,
+      name: 'Dr John Smith',
+      gender: 'male',
+      specialization: 'Anxiety & Stress',
+      profileImage: ''
+    },
+    {
+      id: 2,
+      name: 'Dr Mei Lee',
+      gender: 'female',
+      specialization: 'Academic Pressure',
+      profileImage: ''
+    },
+    {
+      id: 3,
+      name: 'Dr Wilson House',
+      gender: 'male',
+      specialization: 'Anxiety and Depression',
+      profileImage: ''
     }
-  };
+  ];
+  const nextAppointment = MOCK_APPOINTMENTS.find(a => a.studentId === user?.id && a.status === 'CONFIRMED');
 
   return (
     <>
@@ -100,24 +103,18 @@ const StudentDashboard = () => {
         <h3 className="font-bold text-slate-900 mb-6 flex items-center">
           <Users className="h-5 w-5 mr-2 text-brand-500" /> Available Therapists
         </h3>
-        {loading ? (
-          <div className="flex justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {therapists.map((therapist) => (
-              <TherapistCard
-                key={therapist.id}
-                id={therapist.id}
-                name={therapist.name}
-                gender={therapist.gender}
-                specialization={therapist.specialization}
-                profileImage={therapist.profileImage}
-              />
-            ))}
-          </div>
-        )}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {therapists.map((therapist) => (
+            <TherapistCard
+              key={therapist.id}
+              id={therapist.id}
+              name={therapist.name}
+              gender={therapist.gender}
+              specialization={therapist.specialization}
+              profileImage={therapist.profileImage}
+            />
+          ))}
+        </div>
       </div>
 
       {/* Self-Assessment Tools */}
