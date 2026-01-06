@@ -7,6 +7,11 @@ import StudentHeader from '../../components/StudentHeader';
 import TherapistCard from '../../components/TherapistCard';
 import CareCompanion from '../../components/CareCompanion';
 
+// Import therapist images
+import drJohnSmithImg from '../../assets/images/therapists/dr-john-smith.jpg';
+import drMeiLeeImg from '../../assets/images/therapists/dr-mei-lee.jpg';
+import drWilsonHouseImg from '../../assets/images/therapists/dr-wilson-house.jpg';
+
 interface Therapist {
   id: number;
   name: string;
@@ -23,21 +28,21 @@ const StudentDashboard = () => {
       name: 'Dr John Smith',
       gender: 'male',
       specialization: 'Anxiety & Stress',
-      profileImage: ''
+      profileImage: drJohnSmithImg
     },
     {
       id: 2,
       name: 'Dr Mei Lee',
       gender: 'female',
       specialization: 'Academic Pressure',
-      profileImage: ''
+      profileImage: drMeiLeeImg
     },
     {
       id: 3,
       name: 'Dr Wilson House',
       gender: 'male',
       specialization: 'Anxiety and Depression',
-      profileImage: ''
+      profileImage: drWilsonHouseImg
     }
   ];
   const nextAppointment = MOCK_APPOINTMENTS.find(a => a.studentId === user?.id && a.status === 'CONFIRMED');
