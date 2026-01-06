@@ -73,7 +73,7 @@ const Login = () => {
     const user = staticUsers[formData.username as keyof typeof staticUsers];
     
     if (user && user.password === formData.password) {
-      setMessage({ type: 'success', text: 'Login successful! Redirecting...' });
+      setMessage({ type: 'success', text: `Login successful as ${user.role.toUpperCase()}! Redirecting...` });
       
       const userData = {
         username: formData.username,
