@@ -30,7 +30,7 @@ const AppointmentsPage = () => {
     session: '',
     reason: ''
   });
-  const [sortBy, setSortBy] = useState<'date' | 'time'>('date');
+  const [sortBy, setSortBy] = useState<'newest' | 'oldest'>('newest');
   const [filterStatus, setFilterStatus] = useState<string>('');
   
   const availableSessions = {
@@ -199,13 +199,11 @@ const AppointmentsPage = () => {
     let filtered = filterStatus ? list.filter(apt => apt.status === filterStatus) : list;
     
     return filtered.sort((a, b) => {
-      if (sortBy === 'date') {
-        return new Date(b.appointment_date).getTime() - new Date(a.appointment_date).getTime();
-      } else {
-        const dateTimeA = new Date(`${a.appointment_date} ${a.start_time}`);
-        const dateTimeB = new Date(`${b.appointment_date} ${b.start_time}`);
-        return dateTimeB.getTime() - dateTimeA.getTime();
-      }
+      const dateTimeA = new Date(`${a.appointment_date} ${a.start_time}`);
+      const dateTimeB = new Date(`${b.appointment_date} ${b.start_time}`);
+      return sortBy === 'newest' 
+        ? dateTimeB.getTime() - dateTimeA.getTime()
+        : dateTimeA.getTime() - dateTimeB.getTime();
     });
   };
   
@@ -247,11 +245,11 @@ const AppointmentsPage = () => {
       <div className="flex gap-4 mb-6">
         <select 
           value={sortBy} 
-          onChange={(e) => setSortBy(e.target.value as 'date' | 'time')}
+          onChange={(e) => setSortBy(e.target.value as 'newest' | 'oldest')}
           className="px-3 py-2 border border-slate-300 rounded-lg text-sm"
         >
-          <option value="date">Sort by Date</option>
-          <option value="time">Sort by Date & Time</option>
+          <option value="newest">Newest to Oldest</option>
+          <option value="oldest">Oldest to Newest</option>
         </select>
         
         <select 
@@ -381,19 +379,6 @@ const AppointmentsPage = () => {
                             rows={3} 
                             placeholder="Briefly describe what you'd like to discuss..."
                         />
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Session Type</label>
-                        <div className="flex gap-4">
-                            <label className="flex items-center gap-2 border p-3 rounded-lg flex-1 cursor-pointer hover:bg-slate-50">
-                                <input type="radio" name="type" className="text-brand-600" defaultChecked />
-                                <span>In-Person (Campus)</span>
-                            </label>
-                            <label className="flex items-center gap-2 border p-3 rounded-lg flex-1 cursor-pointer hover:bg-slate-50">
-                                <input type="radio" name="type" className="text-brand-600" />
-                                <span>Online (Teams)</span>
-                            </label>
-                        </div>
                     </div>
                 </div>
                 <div className="p-6 bg-slate-50 flex justify-end gap-3">

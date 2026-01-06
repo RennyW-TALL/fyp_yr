@@ -193,21 +193,27 @@ const StudentDashboard = () => {
         </div>
       </div>
 
-      {/* Available Therapists */}
+      {/* Available Counselors */}
       <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
         <h3 className="font-bold text-slate-900 mb-6 flex items-center">
-          <Users className="h-5 w-5 mr-2 text-brand-500" /> Available Therapists
+          <Users className="h-5 w-5 mr-2 text-brand-500" /> Available Counselors
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {therapists.map((therapist) => (
-            <TherapistCard
-              key={therapist.id}
-              id={therapist.id}
-              name={therapist.name}
-              gender={therapist.gender}
-              specialization={therapist.specialization}
-              profileImage={therapist.profileImage}
-            />
+            <div key={therapist.id} className="p-4 border border-slate-200 rounded-xl">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-12 h-12 bg-slate-200 rounded-full flex items-center justify-center">
+                  <Users className="h-6 w-6 text-slate-600" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-slate-900">{therapist.name}</h4>
+                  <p className="text-sm text-slate-500">{therapist.gender}</p>
+                </div>
+              </div>
+              <p className="text-sm text-slate-600">
+                <span className="font-medium">Specialization:</span> {therapist.specialization}
+              </p>
+            </div>
           ))}
         </div>
       </div>
