@@ -84,11 +84,11 @@ const Login = () => {
       
       setTimeout(() => {
         if (user.role === 'student') {
-          navigate('/student/studentdashboard');
+          window.location.href = '/student/studentdashboard';
         } else if (user.role === 'counselor') {
-          navigate('/counselor/counselordashboard');
+          window.location.href = '/counselor/counselordashboard';
         } else if (user.role === 'admin') {
-          navigate('/admin/admindashboard');
+          window.location.href = '/admin/admindashboard';
         }
       }, 1500);
     }
@@ -209,7 +209,7 @@ const Login = () => {
                 <button
                   onClick={() => {
                     localStorage.setItem('user', JSON.stringify({ username: 'student1', role: 'student' }));
-                    navigate('/student/studentdashboard');
+                    window.location.href = '/student/studentdashboard';
                   }}
                   className="px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded hover:bg-blue-200"
                 >
@@ -218,7 +218,7 @@ const Login = () => {
                 <button
                   onClick={() => {
                     localStorage.setItem('user', JSON.stringify({ username: 'counselor1', role: 'counselor' }));
-                    navigate('/counselor/counselordashboard');
+                    window.location.href = '/counselor/counselordashboard';
                   }}
                   className="px-3 py-1 bg-green-100 text-green-700 text-xs rounded hover:bg-green-200"
                 >
@@ -227,7 +227,7 @@ const Login = () => {
                 <button
                   onClick={() => {
                     localStorage.setItem('user', JSON.stringify({ username: 'admin01', role: 'admin' }));
-                    navigate('/admin/admindashboard');
+                    window.location.href = '/admin/admindashboard';
                   }}
                   className="px-3 py-1 bg-purple-100 text-purple-700 text-xs rounded hover:bg-purple-200"
                 >
