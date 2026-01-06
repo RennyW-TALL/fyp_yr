@@ -9,7 +9,8 @@ const Landing = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(API_ENDPOINTS.USERS_LIST)
+    fetch('http://localhost/FYP_OfficialCode/backend/API/users/list.php')
+
       .then(response => response.json())
       .then(data => {
         if (data.success) {
