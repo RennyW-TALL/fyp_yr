@@ -110,8 +110,14 @@ const Register = () => {
             <h2 className="text-3xl font-bold text-slate-800 mb-2">
               Create Account
             </h2>
-            <p className="text-slate-600">
+            <p className="text-slate-600 mb-4">
               Join our mental health community
+            </p>
+            <p className="text-sm text-slate-600">
+              Already have an account?{' '}
+              <Link to="/login" className="font-semibold text-indigo-600 hover:text-indigo-700 transition-colors">
+                Sign in here
+              </Link>
             </p>
           </div>
 
@@ -421,15 +427,6 @@ const Register = () => {
             >
               {loading ? 'Creating account...' : 'Create Account'}
             </button>
-            
-            <div className="text-center">
-              <p className="text-sm text-slate-600">
-                Already have an account?{' '}
-                <Link to="/login" className="font-semibold text-indigo-600 hover:text-indigo-700 transition-colors">
-                  Sign in here
-                </Link>
-              </p>
-            </div>
           </div>
         </form>
         </div>
