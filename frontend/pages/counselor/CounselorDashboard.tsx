@@ -47,13 +47,13 @@ const CounselorDashboard = () => {
   };
 
   const [appointments, setAppointments] = useState<Appointment[]>([
-    { id: 1, studentName: 'Wong Yi Ren', date: '2026-01-12', startTime: '10:00', endTime: '11:00', status: 'Pending', reason: 'Anxiety issues' },
+    { id: 1, studentName: 'Wong Yi Ren', date: '2026-01-12', startTime: '10:00', endTime: '11:00', status: 'Pending', reason: 'demo purposes' },
     { id: 2, studentName: 'John Doe', date: '2026-01-16', startTime: '11:00', endTime: '12:00', status: 'Pending', reason: 'Depression' },
     { id: 3, studentName: 'Sarah Lee', date: '2026-01-26', startTime: '11:00', endTime: '12:00', status: 'Confirmed', reason: 'Stress management' }
   ]);
 
   const [sessions, setSessions] = useState<Session[]>([
-    { id: 1, date: '2026-01-12', startTime: '10:00', endTime: '11:00', month: 'January', bookedBy: 'Wong Yi Ren', reason: 'Anxiety issues' },
+    { id: 1, date: '2026-01-12', startTime: '10:00', endTime: '11:00', month: 'January', bookedBy: 'Wong Yi Ren', reason: 'demo purposes' },
     { id: 2, date: '2026-01-13', startTime: '14:00', endTime: '15:00', month: 'January'},
     { id: 3, date: '2026-01-14', startTime: '15:00', endTime: '16:00', month: 'January'},
     { id: 4, date: '2026-01-16', startTime: '11:00', endTime: '12:00', month: 'January', bookedBy: 'John Doe', reason: 'Depression' },
@@ -80,11 +80,24 @@ const CounselorDashboard = () => {
 
   const handleCancelConfirm = () => {
     if (cancellingAppointment && cancelRemark.trim()) {
+      // Cancel the appointment
       setAppointments(prev => prev.map(apt => 
         apt.id === cancellingAppointment.id 
           ? { ...apt, status: 'Cancelled', cancelRemark } 
           : apt
       ));
+      
+      // Remove the corresponding session booking
+      setSessions(prev => prev.map(session => {
+        if (session.date === cancellingAppointment.date && 
+            session.startTime === cancellingAppointment.startTime && 
+            session.endTime === cancellingAppointment.endTime &&
+            session.bookedBy === cancellingAppointment.studentName) {
+          return { ...session, bookedBy: undefined, reason: undefined };
+        }
+        return session;
+      }));
+      
       setShowCancelModal(false);
       setCancellingAppointment(null);
       setCancelRemark('');
