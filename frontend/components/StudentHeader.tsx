@@ -48,6 +48,18 @@ const StudentHeader = () => {
             <span className="font-medium">Appointments</span>
           </Link>
 
+          <Link
+            to="/student/phq9-assessment"
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+              location.pathname === '/student/phq9-assessment'
+                ? 'bg-indigo-100 text-indigo-700'
+                : 'text-slate-600 hover:text-indigo-600 hover:bg-slate-50'
+            }`}
+          >
+            <Brain className="h-4 w-4" />
+            <span className="font-medium">PHQ-9</span>
+          </Link>
+
           {/* User Profile Dropdown */}
           <div className="relative">
             <button
