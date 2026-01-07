@@ -5,6 +5,7 @@ import { Brain, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 const Register = () => {
   const [userType, setUserType] = useState('student');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const navigate = useNavigate();
@@ -219,15 +220,28 @@ const Register = () => {
               <label htmlFor="confirmPassword" className="block text-sm font-medium text-slate-700">
                 Confirm Password
               </label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                required
-                className="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-              />
+              <div className="mt-1 relative">
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  required
+                  className="block w-full px-3 py-2 pr-10 border border-slate-300 rounded-lg focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4 text-slate-400" />
+                  ) : (
+                    <Eye className="h-4 w-4 text-slate-400" />
+                  )}
+                </button>
+              </div>
             </div>
           </div>
 
@@ -386,22 +400,6 @@ const Register = () => {
                     className="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm"
                     placeholder="e.g., Anxiety & Stress"
                     value={formData.specialization}
-                    onChange={handleChange}
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="max_daily_sessions" className="block text-sm font-medium text-slate-700">
-                    Max Daily Sessions
-                  </label>
-                  <input
-                    id="max_daily_sessions"
-                    name="max_daily_sessions"
-                    type="number"
-                    min="1"
-                    max="12"
-                    className="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm"
-                    value={formData.max_daily_sessions}
                     onChange={handleChange}
                   />
                 </div>

@@ -76,8 +76,14 @@ const Login = () => {
             <h2 className="text-3xl font-bold text-slate-800 mb-2">
               Welcome Back
             </h2>
-            <p className="text-slate-600">
+            <p className="text-slate-600 mb-4">
               Sign in to continue to your dashboard
+            </p>
+            <p className="text-sm text-slate-600">
+              Don't have an account?{' '}
+              <Link to="/register" className="font-semibold text-indigo-600 hover:text-indigo-700 transition-colors">
+                Register here
+              </Link>
             </p>
           </div>
 
@@ -109,8 +115,9 @@ const Login = () => {
                     name="password"
                     type={showPassword ? 'text' : 'password'}
                     required
+                    minLength={6}
                     className="w-full px-4 py-3 pr-12 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all bg-slate-50/50"
-                    placeholder="Enter your password"
+                    placeholder="Min 6 characters"
                     value={formData.password}
                     onChange={handleChange}
                   />

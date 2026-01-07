@@ -36,14 +36,6 @@ const Landing = () => {
             <p className="text-lg text-slate-600 max-w-2xl mx-auto mb-8">
                 A secure, role-based platform bridging the gap between students and professional counseling through ethical AI screening and streamlined appointment management.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link to="/register" className="px-8 py-3 bg-brand-600 text-white rounded-xl font-semibold shadow-lg shadow-brand-200 hover:bg-brand-700 transition-all transform hover:-translate-y-0.5">
-                    Get Started
-                </Link>
-                <Link to="/login" className="px-8 py-3 bg-white text-slate-700 border border-slate-200 rounded-xl font-semibold hover:bg-slate-50 transition-colors">
-                    Login
-                </Link>
-            </div>
         </div>
       </div>
 
