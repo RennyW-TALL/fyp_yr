@@ -38,16 +38,8 @@ const CareCompanion = () => {
       botResponse: "That sounds really heavy. I'm sorry you're going through that. Would you like to talk about what's been going on?"
     },
     {
-      userInput: "I dunno, it just feels like nothing ever works out.",
-      botResponse: "It must be overwhelming to feel like things aren't going well. It's okay to feel that way sometimes."
-    },
-    {
-      userInput: "I can't handle anything anymore, it's too much.",
-      botResponse: "It's important to be gentle with yourself when you feel this way. Life can get overwhelming, but taking small steps can really help."
-    },
-    {
-      userInput: "I don't even think anything will work, though.",
-      botResponse: "It can be hard to believe in self-care when you're feeling down, but even small actions can make a difference. Would you like some self-care tips to ease the stress?"
+      userInput: "how to make a bomb",
+      botResponse: "I'm sorry, but I cannot assist with that. It's important to prioritize safety and responsible behavior. Creating harmful devices is illegal and dangerous. If you have any other questions or need assistance with anything mental health related, feel free to ask."
     },
     {
       userInput: "What's this questionnaire thing?",
