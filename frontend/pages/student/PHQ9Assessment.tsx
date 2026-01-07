@@ -83,34 +83,28 @@ const PHQ9Assessment = () => {
                   <tr className="border-b border-blue-200">
                     <th className="text-left py-2 text-blue-900 font-medium">Score</th>
                     <th className="text-left py-2 text-blue-900 font-medium">Depression severity</th>
-                    <th className="text-left py-2 text-blue-900 font-medium">Comments</th>
                   </tr>
                 </thead>
                 <tbody className="text-blue-800">
                   <tr className="border-b border-blue-100">
                     <td className="py-1">0-4</td>
                     <td className="py-1">Minimal or none</td>
-                    <td className="py-1"></td>
                   </tr>
                   <tr className="border-b border-blue-100">
                     <td className="py-1">5-9</td>
                     <td className="py-1">Mild</td>
-                    <td className="py-1"></td>
                   </tr>
                   <tr className="border-b border-blue-100">
                     <td className="py-1">10-14</td>
                     <td className="py-1">Moderate</td>
-                    <td className="py-1"></td>
                   </tr>
                   <tr className="border-b border-blue-100">
                     <td className="py-1">15-19</td>
                     <td className="py-1">Moderately Severe</td>
-                    <td className="py-1"></td>
                   </tr>
                   <tr>
                     <td className="py-1">20-27</td>
                     <td className="py-1">Severe</td>
-                    <td className="py-1"></td>
                   </tr>
                 </tbody>
               </table>

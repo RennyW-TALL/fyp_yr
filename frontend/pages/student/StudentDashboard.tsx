@@ -156,7 +156,7 @@ const StudentDashboard = () => {
         <p className="text-slate-500">How are you feeling today?</p>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid md:grid-cols-3 gap-6">
         {/* Quick Actions */}
         <div className="grid gap-4">
             <Link to="/student/appointments" className="p-6 bg-gradient-to-br from-brand-500 to-brand-600 rounded-2xl shadow-lg text-white hover:shadow-brand-200/50 transition-all hover:-translate-y-1">
@@ -191,6 +191,21 @@ const StudentDashboard = () => {
                 </div>
             )}
         </div>
+
+        {/* PHQ-9 Assessment Widget */}
+        <div className="bg-gradient-to-br from-purple-500 to-indigo-600 p-6 rounded-2xl shadow-lg text-white">
+            <div className="bg-white/20 w-12 h-12 rounded-xl flex items-center justify-center mb-4">
+                <BookOpen className="h-6 w-6 text-white" />
+            </div>
+            <h3 className="text-lg font-bold mb-2">PHQ-9 Assessment</h3>
+            <p className="text-purple-100 text-sm mb-4">Screen for depressive symptoms with this quick assessment tool.</p>
+            <Link 
+                to="/student/phq9assessment" 
+                className="inline-flex items-center text-sm font-medium bg-white text-purple-600 px-4 py-2 rounded-lg hover:bg-purple-50 transition-colors"
+            >
+                Take Assessment <ArrowRight className="ml-2 h-4 w-4"/>
+            </Link>
+        </div>
       </div>
 
       {/* Available Counselors */}
@@ -212,34 +227,7 @@ const StudentDashboard = () => {
         </div>
       </div>
 
-      {/* Self-Assessment Tools */}
-      <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-        <h3 className="font-bold text-slate-900 mb-4 flex items-center">
-          <BookOpen className="h-5 w-5 mr-2 text-brand-500" /> Self-Assessment Tools
-        </h3>
-        <div className="grid md:grid-cols-2 gap-4">
-          <div className="flex items-center justify-between p-4 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer">
-            <div>
-              <h4 className="font-semibold text-slate-800">PHQ-9 Assessment</h4>
-              <p className="text-xs text-slate-500">Screening for depressive symptoms</p>
-            </div>
-            <Link to="/student/phq9" className="text-sm font-medium text-brand-600 bg-white px-3 py-1.5 border border-slate-200 rounded-lg shadow-sm hover:bg-brand-50 transition-colors">
-              Start
-            </Link>
-          </div>
-          <div className="flex items-center justify-between p-4 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer">
-            <div>
-              <h4 className="font-semibold text-slate-800">DASS-21 Assessment</h4>
-              <p className="text-xs text-slate-500">Depression, Anxiety & Stress Scale</p>
-            </div>
-            <button className="text-sm font-medium text-brand-600 bg-white px-3 py-1.5 border border-slate-200 rounded-lg shadow-sm">Start</button>
-          </div>
-        </div>
-        <div className="mt-4 p-4 bg-yellow-50 rounded-xl border border-yellow-100">
-          <h4 className="text-sm font-bold text-yellow-800 mb-1">Note:</h4>
-          <p className="text-xs text-yellow-700">These tools are for screening only and do not provide a medical diagnosis. Results are private.</p>
-        </div>
-      </div>
+
       </div>
       <CareCompanion />
     </>
