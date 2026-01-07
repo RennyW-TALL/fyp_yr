@@ -20,6 +20,13 @@ interface Counselor {
   specialty: string;
 }
 
+interface PendingCounselor {
+  id: number;
+  name: string;
+  gender: string;
+  specialty: string;
+}
+
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const [activeView, setActiveView] = useState<'dashboard' | 'students' | 'counselors'>('dashboard');
@@ -30,10 +37,13 @@ const AdminDashboard = () => {
   const [deletingItem, setDeletingItem] = useState<{ type: 'student' | 'counselor', id: number } | null>(null);
   const [selectedStudents, setSelectedStudents] = useState<number[]>([]);
   const [selectedCounselors, setSelectedCounselors] = useState<number[]>([]);
+  const [selectedPendingCounselors, setSelectedPendingCounselors] = useState<number[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [addingType, setAddingType] = useState<'student' | 'counselor'>('student');
   const [searchQuery, setSearchQuery] = useState('');
+  const [pendingSearchQuery, setPendingSearchQuery] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [activeView, setActiveView] = useState<'dashboard' | 'students' | 'counselors' | 'pending'>('dashboard');
   
   const [students, setStudents] = useState<Student[]>([
     { id: 1, name: 'Wong Yi Ren', gender: 'Male', age: 21, course: 'Computer Science', year: 3 },
@@ -49,7 +59,12 @@ const AdminDashboard = () => {
     { id: 3, name: 'Dr Wilson House', gender: 'Male', specialty: 'Anxiety and Depression' }
   ]);
 
-  const pendingCounselors = MOCK_USERS.filter(u => u.status === UserStatus.PENDING);
+  const [pendingCounselors, setPendingCounselors] = useState<PendingCounselor[]>([
+    { id: 1, name: 'Dr Ali Baba', gender: 'Male', specialty: 'demo purposes' },
+    { id: 2, name: 'Dr Alice Kok', gender: 'Female', specialty: 'Testing' },
+    { id: 3, name: 'Dr Hannah Yeoh', gender: 'Female', specialty: 'psychology and hypnosis' }
+  ]);
+
   const totalUsers = MOCK_USERS.length;
   const suspendedUsers = MOCK_USERS.filter(u => u.status === UserStatus.SUSPENDED).length;
 
@@ -131,6 +146,38 @@ const AdminDashboard = () => {
 
   const filteredStudents = students.filter(s => s.name.toLowerCase().includes(searchQuery.toLowerCase()));
   const filteredCounselors = counselors.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredPendingCounselors = pendingCounselors.filter(c => c.name.toLowerCase().includes(pendingSearchQuery.toLowerCase()));
+
+  const handleApproveCounselor = (id: number) => {
+    const counselor = pendingCounselors.find(c => c.id === id);
+    if (counselor) {
+      setCounselors(prev => [...prev, { ...counselor, id: Math.max(...prev.map(c => c.id)) + 1 }]);
+      setPendingCounselors(prev => prev.filter(c => c.id !== id));
+      showSuccessMessage('Counselor approved and added to system');
+    }
+  };
+
+  const handleRejectCounselor = (id: number) => {
+    setPendingCounselors(prev => prev.filter(c => c.id !== id));
+    showSuccessMessage('Counselor registration rejected');
+  };
+
+  const handleBulkApproveCounselors = () => {
+    const counselorsToApprove = pendingCounselors.filter(c => selectedPendingCounselors.includes(c.id));
+    counselorsToApprove.forEach(counselor => {
+      setCounselors(prev => [...prev, { ...counselor, id: Math.max(...prev.map(c => c.id)) + 1 }]);
+    });
+    setPendingCounselors(prev => prev.filter(c => !selectedPendingCounselors.includes(c.id)));
+    setSelectedPendingCounselors([]);
+    showSuccessMessage(`${counselorsToApprove.length} counselor(s) approved`);
+  };
+
+  const handleBulkRejectCounselors = () => {
+    setPendingCounselors(prev => prev.filter(c => !selectedPendingCounselors.includes(c.id)));
+    const count = selectedPendingCounselors.length;
+    setSelectedPendingCounselors([]);
+    showSuccessMessage(`${count} counselor(s) rejected`);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 via-rose-50 to-pink-50">
@@ -142,9 +189,12 @@ const AdminDashboard = () => {
       )}
       
       {/* Header */}
-      <header className="bg-white border-b border-red-200 shadow-sm">
+      <header className="bg-white border-b border-orange-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <button 
+            onClick={() => setActiveView('dashboard')}
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+          >
             <img 
               src="/assets/images/mindcare-apu-logo.png" 
               alt="MindCare APU" 
@@ -154,18 +204,18 @@ const AdminDashboard = () => {
                 e.currentTarget.nextElementSibling.style.display = 'flex';
               }}
             />
-            <div className="h-12 w-12 bg-blue-100 rounded-lg items-center justify-center hidden">
-              <span className="text-lg font-bold text-blue-900">MC</span>
+            <div className="h-12 w-12 bg-orange-100 rounded-lg items-center justify-center hidden">
+              <span className="text-lg font-bold text-orange-900">MC</span>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-900">MindCare APU</h1>
-              <p className="text-sm text-slate-600">Admin Dashboard</p>
+              <h1 className="text-xl font-bold text-orange-900">MindCare APU</h1>
+              <p className="text-sm text-orange-700">Admin Dashboard</p>
             </div>
-          </div>
+          </button>
           
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
           >
             <LogOut className="h-4 w-4" />
             Logout
@@ -177,81 +227,66 @@ const AdminDashboard = () => {
         {activeView === 'dashboard' && (
           <div className="space-y-8">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">Admin Dashboard</h1>
-              <p className="text-slate-500">System overview and user management.</p>
+              <h1 className="text-2xl font-bold text-orange-900">Admin Dashboard</h1>
+              <p className="text-orange-700">System overview and user management.</p>
             </div>
 
             {/* Navigation Widgets */}
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-3 gap-6">
               <button
                 onClick={() => setActiveView('students')}
-                className="bg-white p-6 rounded-2xl shadow-sm border border-red-200 hover:shadow-md hover:border-red-300 transition-all text-left"
+                className="bg-white p-6 rounded-2xl shadow-sm border border-orange-200 hover:shadow-md hover:border-orange-300 transition-all text-left"
               >
                 <div className="flex items-center gap-4">
-                  <div className="bg-red-100 p-3 rounded-xl text-red-600">
+                  <div className="bg-orange-100 p-3 rounded-xl text-orange-600">
                     <Users className="h-8 w-8" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-slate-900">Student Management</h3>
-                    <p className="text-slate-600">View and manage student accounts</p>
+                    <h3 className="text-xl font-bold text-orange-900">Student Management</h3>
+                    <p className="text-orange-700">View and manage student accounts</p>
                   </div>
                 </div>
               </button>
               
               <button
                 onClick={() => setActiveView('counselors')}
-                className="bg-white p-6 rounded-2xl shadow-sm border border-red-200 hover:shadow-md hover:border-red-300 transition-all text-left"
+                className="bg-white p-6 rounded-2xl shadow-sm border border-orange-200 hover:shadow-md hover:border-orange-300 transition-all text-left"
               >
                 <div className="flex items-center gap-4">
-                  <div className="bg-rose-100 p-3 rounded-xl text-rose-600">
+                  <div className="bg-orange-100 p-3 rounded-xl text-orange-600">
                     <Brain className="h-8 w-8" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-slate-900">Counselor Management</h3>
-                    <p className="text-slate-600">View and manage counselor accounts</p>
+                    <h3 className="text-xl font-bold text-orange-900">Counselor Management</h3>
+                    <p className="text-orange-700">View and manage counselor accounts</p>
+                  </div>
+                </div>
+              </button>
+
+              <button
+                onClick={() => setActiveView('pending')}
+                className="bg-white p-6 rounded-2xl shadow-sm border border-orange-200 hover:shadow-md hover:border-orange-300 transition-all text-left"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="bg-orange-100 p-3 rounded-xl text-orange-600">
+                    <UserPlus className="h-8 w-8" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-orange-900">Pending Counselors</h3>
+                    <p className="text-orange-700">Review pending registrations</p>
                   </div>
                 </div>
               </button>
             </div>
 
-            {/* Pending Approvals Section */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-              <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50">
-                  <h3 className="font-bold text-slate-900">Pending Counselor Registrations</h3>
-              </div>
-              <div className="divide-y divide-slate-100">
-                  {pendingCounselors.length > 0 ? (
-                      pendingCounselors.map(user => (
-                          <div key={user.id} className="p-6 flex items-center justify-between">
-                              <div className="flex items-center gap-4">
-                                  <div className="h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 font-bold">
-                                      {user.name.charAt(0)}
-                                  </div>
-                                  <div>
-                                      <p className="font-bold text-slate-900">{user.name}</p>
-                                      <p className="text-sm text-slate-500">{user.email}</p>
-                                  </div>
-                              </div>
-                              <div className="flex gap-3">
-                                  <button className="px-4 py-2 text-sm text-red-600 font-medium hover:bg-red-50 rounded-lg transition-colors">Reject</button>
-                                  <button className="px-4 py-2 text-sm bg-red-600 text-white font-medium hover:bg-red-700 rounded-lg transition-colors flex items-center">
-                                      <CheckCircle className="h-4 w-4 mr-2" /> Approve
-                                  </button>
-                              </div>
-                          </div>
-                      ))
-                  ) : (
-                      <div className="p-8 text-center text-slate-500">No pending registrations.</div>
-                  )}
-              </div>
-            </div>
+
           </div>
         )}
 
         {activeView === 'students' && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-bold text-slate-900">Student Management</h1>
+              <h1 className="text-2xl font-bold text-orange-900">Student Management</h1>
               <div className="flex gap-3">
                 <button
                   onClick={() => {
@@ -259,7 +294,7 @@ const AdminDashboard = () => {
                     setEditingStudent({ id: 0, name: '', gender: 'Male', age: 18, course: '', year: 1 });
                     setShowAddModal(true);
                   }}
-                  className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
                 >
                   <Plus className="h-4 w-4" />
                   Add Student
@@ -281,13 +316,13 @@ const AdminDashboard = () => {
                   placeholder="Search by name..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-red-200 rounded-lg focus:border-red-500 focus:ring-2 focus:ring-red-200"
+                  className="w-full pl-10 pr-4 py-2 border border-orange-200 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200"
                 />
               </div>
               {selectedStudents.length > 0 && (
                 <button
                   onClick={() => handleBulkDelete('student')}
-                  className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
                 >
                   <Trash2 className="h-4 w-4" />
                   Delete Selected ({selectedStudents.length})
@@ -295,9 +330,9 @@ const AdminDashboard = () => {
               )}
             </div>
             
-            <div className="bg-white rounded-2xl shadow-sm border border-red-200 overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-sm border border-orange-200 overflow-hidden">
               <table className="w-full">
-                <thead className="bg-red-50">
+                <thead className="bg-orange-50">
                   <tr>
                     <th className="px-6 py-3 text-left">
                       <input
@@ -310,21 +345,21 @@ const AdminDashboard = () => {
                             setSelectedStudents([]);
                           }
                         }}
-                        className="rounded border-red-300"
+                        className="rounded border-orange-300"
                       />
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Name</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Gender</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Age</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Course</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Year of Study</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Edit</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Delete</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-orange-800 uppercase">Name</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-orange-800 uppercase">Gender</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-orange-800 uppercase">Age</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-orange-800 uppercase">Course</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-orange-800 uppercase">Year of Study</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-orange-800 uppercase">Edit</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-orange-800 uppercase">Delete</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-red-100">
+                <tbody className="divide-y divide-orange-100">
                   {filteredStudents.map(student => (
-                    <tr key={student.id} className="hover:bg-red-50">
+                    <tr key={student.id} className="hover:bg-orange-50">
                       <td className="px-6 py-4">
                         <input
                           type="checkbox"
@@ -336,18 +371,18 @@ const AdminDashboard = () => {
                               setSelectedStudents(selectedStudents.filter(id => id !== student.id));
                             }
                           }}
-                          className="rounded border-red-300"
+                          className="rounded border-orange-300"
                         />
                       </td>
-                      <td className="px-6 py-4 text-sm font-medium text-slate-900">{student.name}</td>
-                      <td className="px-6 py-4 text-sm text-slate-600">{student.gender}</td>
-                      <td className="px-6 py-4 text-sm text-slate-600">{student.age}</td>
-                      <td className="px-6 py-4 text-sm text-slate-600">{student.course}</td>
-                      <td className="px-6 py-4 text-sm text-slate-600">Year {student.year}</td>
+                      <td className="px-6 py-4 text-sm font-medium text-orange-900">{student.name}</td>
+                      <td className="px-6 py-4 text-sm text-orange-700">{student.gender}</td>
+                      <td className="px-6 py-4 text-sm text-orange-700">{student.age}</td>
+                      <td className="px-6 py-4 text-sm text-orange-700">{student.course}</td>
+                      <td className="px-6 py-4 text-sm text-orange-700">Year {student.year}</td>
                       <td className="px-6 py-4">
                         <button
                           onClick={() => handleEditStudent(student)}
-                          className="text-red-600 hover:text-red-800"
+                          className="text-blue-600 hover:text-blue-800"
                         >
                           <Edit className="h-4 w-4" />
                         </button>
@@ -355,7 +390,7 @@ const AdminDashboard = () => {
                       <td className="px-6 py-4">
                         <button
                           onClick={() => handleDeleteClick('student', student.id)}
-                          className="text-red-600 hover:text-red-800"
+                          className="text-orange-600 hover:text-orange-800"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -371,7 +406,7 @@ const AdminDashboard = () => {
         {activeView === 'counselors' && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-bold text-slate-900">Counselor Management</h1>
+              <h1 className="text-2xl font-bold text-orange-900">Counselor Management</h1>
               <div className="flex gap-3">
                 <button
                   onClick={() => {
@@ -379,7 +414,7 @@ const AdminDashboard = () => {
                     setEditingCounselor({ id: 0, name: '', gender: 'Male', specialty: '' });
                     setShowAddModal(true);
                   }}
-                  className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
                 >
                   <Plus className="h-4 w-4" />
                   Add Counselor
@@ -401,13 +436,13 @@ const AdminDashboard = () => {
                   placeholder="Search by name..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-red-200 rounded-lg focus:border-red-500 focus:ring-2 focus:ring-red-200"
+                  className="w-full pl-10 pr-4 py-2 border border-orange-200 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200"
                 />
               </div>
               {selectedCounselors.length > 0 && (
                 <button
                   onClick={() => handleBulkDelete('counselor')}
-                  className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
                 >
                   <Trash2 className="h-4 w-4" />
                   Delete Selected ({selectedCounselors.length})
@@ -415,9 +450,9 @@ const AdminDashboard = () => {
               )}
             </div>
             
-            <div className="bg-white rounded-2xl shadow-sm border border-red-200 overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-sm border border-orange-200 overflow-hidden">
               <table className="w-full">
-                <thead className="bg-red-50">
+                <thead className="bg-orange-50">
                   <tr>
                     <th className="px-6 py-3 text-left">
                       <input
@@ -430,19 +465,19 @@ const AdminDashboard = () => {
                             setSelectedCounselors([]);
                           }
                         }}
-                        className="rounded border-red-300"
+                        className="rounded border-orange-300"
                       />
                     </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Name</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Gender</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Specialty</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Edit</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase">Delete</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-orange-800 uppercase">Name</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-orange-800 uppercase">Gender</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-orange-800 uppercase">Specialty</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-orange-800 uppercase">Edit</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-orange-800 uppercase">Delete</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-red-100">
+                <tbody className="divide-y divide-orange-100">
                   {filteredCounselors.map(counselor => (
-                    <tr key={counselor.id} className="hover:bg-red-50">
+                    <tr key={counselor.id} className="hover:bg-orange-50">
                       <td className="px-6 py-4">
                         <input
                           type="checkbox"
@@ -454,16 +489,16 @@ const AdminDashboard = () => {
                               setSelectedCounselors(selectedCounselors.filter(id => id !== counselor.id));
                             }
                           }}
-                          className="rounded border-red-300"
+                          className="rounded border-orange-300"
                         />
                       </td>
-                      <td className="px-6 py-4 text-sm font-medium text-slate-900">{counselor.name}</td>
-                      <td className="px-6 py-4 text-sm text-slate-600">{counselor.gender}</td>
-                      <td className="px-6 py-4 text-sm text-slate-600">{counselor.specialty}</td>
+                      <td className="px-6 py-4 text-sm font-medium text-orange-900">{counselor.name}</td>
+                      <td className="px-6 py-4 text-sm text-orange-700">{counselor.gender}</td>
+                      <td className="px-6 py-4 text-sm text-orange-700">{counselor.specialty}</td>
                       <td className="px-6 py-4">
                         <button
                           onClick={() => handleEditCounselor(counselor)}
-                          className="text-red-600 hover:text-red-800"
+                          className="text-blue-600 hover:text-blue-800"
                         >
                           <Edit className="h-4 w-4" />
                         </button>
@@ -471,10 +506,122 @@ const AdminDashboard = () => {
                       <td className="px-6 py-4">
                         <button
                           onClick={() => handleDeleteClick('counselor', counselor.id)}
-                          className="text-red-600 hover:text-red-800"
+                          className="text-orange-600 hover:text-orange-800"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {activeView === 'pending' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <h1 className="text-2xl font-bold text-orange-900">Pending Counselor Registrations</h1>
+              <button
+                onClick={() => setActiveView('dashboard')}
+                className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors"
+              >
+                Back to Dashboard
+              </button>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search by name..."
+                  value={pendingSearchQuery}
+                  onChange={(e) => setPendingSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-orange-200 rounded-lg focus:border-orange-500 focus:ring-2 focus:ring-orange-200"
+                />
+              </div>
+              {selectedPendingCounselors.length > 0 && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleBulkApproveCounselors}
+                    className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    <CheckCircle className="h-4 w-4" />
+                    Approve Selected ({selectedPendingCounselors.length})
+                  </button>
+                  <button
+                    onClick={handleBulkRejectCounselors}
+                    className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Reject Selected ({selectedPendingCounselors.length})
+                  </button>
+                </div>
+              )}
+            </div>
+            
+            <div className="bg-white rounded-2xl shadow-sm border border-orange-200 overflow-hidden">
+              <table className="w-full">
+                <thead className="bg-orange-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left">
+                      <input
+                        type="checkbox"
+                        checked={selectedPendingCounselors.length === filteredPendingCounselors.length && filteredPendingCounselors.length > 0}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedPendingCounselors(filteredPendingCounselors.map(c => c.id));
+                          } else {
+                            setSelectedPendingCounselors([]);
+                          }
+                        }}
+                        className="rounded border-orange-300"
+                      />
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-orange-800 uppercase">Name</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-orange-800 uppercase">Gender</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-orange-800 uppercase">Specialty</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-orange-800 uppercase">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-orange-100">
+                  {filteredPendingCounselors.map(counselor => (
+                    <tr key={counselor.id} className="hover:bg-orange-50">
+                      <td className="px-6 py-4">
+                        <input
+                          type="checkbox"
+                          checked={selectedPendingCounselors.includes(counselor.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedPendingCounselors([...selectedPendingCounselors, counselor.id]);
+                            } else {
+                              setSelectedPendingCounselors(selectedPendingCounselors.filter(id => id !== counselor.id));
+                            }
+                          }}
+                          className="rounded border-orange-300"
+                        />
+                      </td>
+                      <td className="px-6 py-4 text-sm font-medium text-orange-900">{counselor.name}</td>
+                      <td className="px-6 py-4 text-sm text-orange-700">{counselor.gender}</td>
+                      <td className="px-6 py-4 text-sm text-orange-700">{counselor.specialty}</td>
+                      <td className="px-6 py-4">
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleRejectCounselor(counselor.id)}
+                            className="px-3 py-1 text-sm text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
+                          >
+                            Reject
+                          </button>
+                          <button
+                            onClick={() => handleApproveCounselor(counselor.id)}
+                            className="px-3 py-1 text-sm bg-green-600 text-white hover:bg-green-700 rounded-lg transition-colors flex items-center gap-1"
+                          >
+                            <CheckCircle className="h-3 w-3" />
+                            Approve
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -584,7 +731,7 @@ const AdminDashboard = () => {
                 </>
               )}
             </div>
-            <div className="p-6 bg-red-50 flex justify-end gap-3">
+            <div className="p-6 bg-orange-50 flex justify-end gap-3">
               <button
                 onClick={() => {
                   setShowAddModal(false);
@@ -597,7 +744,7 @@ const AdminDashboard = () => {
               </button>
               <button
                 onClick={handleAddNew}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
               >
                 Add {addingType === 'student' ? 'Student' : 'Counselor'}
               </button>
@@ -705,7 +852,7 @@ const AdminDashboard = () => {
                 </>
               )}
             </div>
-            <div className="p-6 bg-red-50 flex justify-end gap-3">
+            <div className="p-6 bg-orange-50 flex justify-end gap-3">
               <button
                 onClick={() => {
                   setShowEditModal(false);
@@ -718,7 +865,7 @@ const AdminDashboard = () => {
               </button>
               <button
                 onClick={handleSaveEdit}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
                 Save
               </button>
@@ -751,7 +898,7 @@ const AdminDashboard = () => {
               </button>
               <button
                 onClick={handleDeleteConfirm}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
               >
                 Delete
               </button>
