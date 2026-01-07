@@ -200,7 +200,7 @@ const StudentDashboard = () => {
             <h3 className="text-lg font-bold mb-2">PHQ-9 Assessment</h3>
             <p className="text-purple-100 text-sm mb-4">Screen for depressive symptoms with this quick assessment tool.</p>
             <Link 
-                to="/student/phq9assessment" 
+                to="/student/phq9" 
                 className="inline-flex items-center text-sm font-medium bg-white text-purple-600 px-4 py-2 rounded-lg hover:bg-purple-50 transition-colors"
             >
                 Take Assessment <ArrowRight className="ml-2 h-4 w-4"/>

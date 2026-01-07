@@ -28,7 +28,7 @@ const Landing = () => {
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
             <div className="inline-flex items-center px-3 py-1 rounded-full bg-brand-50 text-brand-700 text-sm font-medium mb-6">
-                APU Final Year Project 2024
+                APU Final Year Project 2025
             </div>
             <h1 className="text-4xl md:text-6xl font-extrabold text-slate-900 tracking-tight mb-6">
                 Cloud-Based Mental Healthcare <br className="hidden md:block"/> Platform testing

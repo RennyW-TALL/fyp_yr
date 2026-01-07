@@ -49,9 +49,9 @@ const StudentHeader = () => {
           </Link>
 
           <Link
-            to="/student/phq9assessment"
+            to="/student/phq9"
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-              location.pathname === '/student/phq9assessment'
+              location.pathname === '/student/phq9'
                 ? 'bg-indigo-100 text-indigo-700'
                 : 'text-slate-600 hover:text-indigo-600 hover:bg-slate-50'
             }`}
