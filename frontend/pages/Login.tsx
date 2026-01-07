@@ -154,16 +154,6 @@ const Login = () => {
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
-
-          {/* Static Login Info */}
-          <div className="mt-6 p-4 bg-slate-50 rounded-xl border border-slate-200">
-            <h3 className="text-sm font-semibold text-slate-700 mb-2">Demo Accounts:</h3>
-            <div className="text-xs text-slate-600 space-y-1">
-              <div>Student: <code className="bg-white px-1 rounded">student1</code> / <code className="bg-white px-1 rounded">abc123</code></div>
-              <div>Counselor: <code className="bg-white px-1 rounded">counselor1</code> / <code className="bg-white px-1 rounded">abc123</code></div>
-              <div>Admin: <code className="bg-white px-1 rounded">admin01</code> / <code className="bg-white px-1 rounded">abc123</code></div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
