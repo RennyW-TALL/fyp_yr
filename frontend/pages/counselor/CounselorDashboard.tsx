@@ -21,6 +21,7 @@ interface Session {
   month: string;
   bookedBy?: string;
   reason?: string;
+  status?: 'Pending' | 'Confirmed';
 }
 
 const CounselorDashboard = () => {
@@ -48,18 +49,17 @@ const CounselorDashboard = () => {
 
   const [appointments, setAppointments] = useState<Appointment[]>([
     { id: 1, studentName: 'Wong Yi Ren', date: '2026-01-12', startTime: '10:00', endTime: '11:00', status: 'Pending', reason: 'demo purposes' },
-    { id: 2, studentName: 'John Doe', date: '2026-01-16', startTime: '11:00', endTime: '12:00', status: 'Pending', reason: 'Depression' },
-    { id: 3, studentName: 'Sarah Lee', date: '2026-01-26', startTime: '11:00', endTime: '12:00', status: 'Confirmed', reason: 'Stress management' }
+    { id: 2, studentName: 'John Doe', date: '2026-01-16', startTime: '11:00', endTime: '12:00', status: 'Pending', reason: 'Depression' }
   ]);
 
   const [sessions, setSessions] = useState<Session[]>([
-    { id: 1, date: '2026-01-12', startTime: '10:00', endTime: '11:00', month: 'January', bookedBy: 'Wong Yi Ren', reason: 'demo purposes' },
+    { id: 1, date: '2026-01-12', startTime: '10:00', endTime: '11:00', month: 'January', bookedBy: 'Wong Yi Ren', reason: 'demo purposes', status: 'Pending' },
     { id: 2, date: '2026-01-13', startTime: '14:00', endTime: '15:00', month: 'January'},
     { id: 3, date: '2026-01-14', startTime: '15:00', endTime: '16:00', month: 'January'},
-    { id: 4, date: '2026-01-16', startTime: '11:00', endTime: '12:00', month: 'January', bookedBy: 'John Doe', reason: 'Depression' },
+    { id: 4, date: '2026-01-16', startTime: '11:00', endTime: '12:00', month: 'January', bookedBy: 'John Doe', reason: 'Depression', status: 'Pending' },
     { id: 5, date: '2026-01-18', startTime: '11:00', endTime: '12:00', month: 'January' },
     { id: 6, date: '2026-01-25', startTime: '14:00', endTime: '15:00', month: 'January' },
-    { id: 7, date: '2026-01-26', startTime: '11:00', endTime: '12:00', month: 'January', bookedBy: 'Sarah Lee', reason: 'Stress management' },
+    { id: 7, date: '2026-01-26', startTime: '11:00', endTime: '12:00', month: 'January', bookedBy: 'Sarah Lee', reason: 'Stress management', status: 'Confirmed' },
     { id: 8, date: '2026-02-10', startTime: '10:00', endTime: '11:00', month: 'February' },
     { id: 9, date: '2026-02-15', startTime: '14:00', endTime: '15:00', month: 'February' },
     { id: 10, date: '2026-03-05', startTime: '09:00', endTime: '10:00', month: 'March' }
@@ -71,6 +71,20 @@ const CounselorDashboard = () => {
 
   const handleAccept = (id: number) => {
     setAppointments(prev => prev.map(apt => apt.id === id ? { ...apt, status: 'Confirmed' } : apt));
+    
+    // Update corresponding session booking status
+    const appointment = appointments.find(apt => apt.id === id);
+    if (appointment) {
+      setSessions(prev => prev.map(session => {
+        if (session.date === appointment.date && 
+            session.startTime === appointment.startTime && 
+            session.endTime === appointment.endTime &&
+            session.bookedBy === appointment.studentName) {
+          return { ...session, status: 'Confirmed' };
+        }
+        return session;
+      }));
+    }
   };
 
   const handleCancelClick = (appointment: Appointment) => {
@@ -455,7 +469,9 @@ const CounselorDashboard = () => {
                       </div>
                       <div className="flex items-center gap-3">
                         <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          session.bookedBy ? 'bg-green-100 text-green-700' : 'bg-blue-200 text-blue-800'
+                          session.bookedBy ? (
+                            session.status === 'Confirmed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                          ) : 'bg-blue-200 text-blue-800'
                         }`}>
                           {session.bookedBy ? `Booked by ${session.bookedBy}` : 'Available'}
                         </span>
@@ -484,6 +500,10 @@ const CounselorDashboard = () => {
                   {getDaysInMonth().map((day, idx) => {
                     const sessionsForDay = day ? getSessionsForDate(day) : [];
                     const isBooked = day && isConfirmedBooking(day);
+                    const isPending = day && sessions.some(s => {
+                      const dateStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                      return s.date === dateStr && s.bookedBy && s.status === 'Pending';
+                    });
                     return (
                       <div
                         key={idx}
@@ -491,6 +511,7 @@ const CounselorDashboard = () => {
                         className={`aspect-square flex flex-col items-center justify-center rounded-lg text-xs cursor-pointer p-1 ${
                           day ? (
                             isBooked ? 'bg-green-100 text-green-800 font-bold hover:bg-green-200' :
+                            isPending ? 'bg-yellow-100 text-yellow-800 font-bold hover:bg-yellow-200' :
                             hasSessionOnDate(day) ? 'bg-blue-100 text-blue-700 font-bold hover:bg-blue-200' : 
                             'bg-blue-50 text-blue-600'
                           ) : ''
