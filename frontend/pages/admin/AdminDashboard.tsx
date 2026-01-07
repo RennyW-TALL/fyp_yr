@@ -29,7 +29,6 @@ interface PendingCounselor {
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const [activeView, setActiveView] = useState<'dashboard' | 'students' | 'counselors'>('dashboard');
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
