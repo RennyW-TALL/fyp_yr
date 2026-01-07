@@ -20,6 +20,7 @@ interface Session {
   endTime: string;
   month: string;
   bookedBy?: string;
+  reason?: string;
 }
 
 const CounselorDashboard = () => {
@@ -43,19 +44,22 @@ const CounselorDashboard = () => {
   };
 
   const [appointments, setAppointments] = useState<Appointment[]>([
-    { id: 1, studentName: 'Wong Yi Ren', date: '2026-01-15', startTime: '10:00', endTime: '11:00', status: 'Pending', reason: 'Anxiety issues' },
+    { id: 1, studentName: 'Wong Yi Ren', date: '2026-01-12', startTime: '10:00', endTime: '11:00', status: 'Pending', reason: 'Anxiety issues' },
     { id: 2, studentName: 'Sarah Lee', date: '2026-01-20', startTime: '14:00', endTime: '15:00', status: 'Pending', reason: 'Stress management' },
     { id: 3, studentName: 'John Doe', date: '2026-01-25', startTime: '09:00', endTime: '10:00', status: 'Confirmed', reason: 'Depression' }
   ]);
 
   const [sessions, setSessions] = useState<Session[]>([
-    { id: 1, date: '2026-01-15', startTime: '10:00', endTime: '11:00', month: 'January', bookedBy: 'Wong Yi Ren' },
-    { id: 2, date: '2026-01-20', startTime: '14:00', endTime: '15:00', month: 'January', bookedBy: 'Sarah Lee' },
-    { id: 3, date: '2026-01-25', startTime: '09:00', endTime: '10:00', month: 'January', bookedBy: 'John Doe' },
-    { id: 4, date: '2026-01-18', startTime: '11:00', endTime: '12:00', month: 'January' },
-    { id: 5, date: '2026-02-10', startTime: '10:00', endTime: '11:00', month: 'February' },
-    { id: 6, date: '2026-02-15', startTime: '14:00', endTime: '15:00', month: 'February' },
-    { id: 7, date: '2026-03-05', startTime: '09:00', endTime: '10:00', month: 'March' }
+    { id: 1, date: '2026-01-12', startTime: '10:00', endTime: '11:00', month: 'January', bookedBy: 'Wong Yi Ren', reason: 'Anxiety issues' },
+    { id: 2, date: '2026-01-13', startTime: '14:00', endTime: '15:00', month: 'January'},
+    { id: 3, date: '2026-01-14', startTime: '15:00', endTime: '16:00', month: 'January'},
+    { id: 4, date: '2026-01-16', startTime: '11:00', endTime: '12:00', month: 'January', bookedBy: 'John Doe', reason: 'Depression' },
+    { id: 5, date: '2026-01-18', startTime: '11:00', endTime: '12:00', month: 'January' },
+    { id: 6, date: '2026-01-25', startTime: '14:00', endTime: '15:00', month: 'January' },
+    { id: 7, date: '2026-01-26', startTime: '11:00', endTime: '12:00', month: 'January', bookedBy: 'Sarah Lee', reason: 'Stress management' },
+    { id: 8, date: '2026-02-10', startTime: '10:00', endTime: '11:00', month: 'February' },
+    { id: 9, date: '2026-02-15', startTime: '14:00', endTime: '15:00', month: 'February' },
+    { id: 10, date: '2026-03-05', startTime: '09:00', endTime: '10:00', month: 'March' }
   ]);
 
   const handleLogout = () => {
@@ -273,14 +277,6 @@ const CounselorDashboard = () => {
           >
             Appointment Sessions
           </button>
-          <button
-            onClick={() => setActiveTab('history')}
-            className={`px-6 py-3 font-medium border-b-2 transition-colors ${
-              activeTab === 'history' ? 'border-white text-white bg-white/20' : 'border-transparent text-blue-200 hover:text-white hover:bg-white/10'
-            }`}
-          >
-            History
-          </button>
         </div>
 
         {/* Appointments Tab */}
@@ -418,6 +414,9 @@ const CounselorDashboard = () => {
                       <div>
                         <p className="font-medium text-blue-900">{session.date}</p>
                         <p className="text-sm text-blue-700">{session.startTime} - {session.endTime}</p>
+                        {session.reason && (
+                          <p className="text-xs text-blue-600 mt-1"><span className="font-medium">Reason:</span> {session.reason}</p>
+                        )}
                       </div>
                       <span className={`px-3 py-1 rounded-full text-xs font-bold ${
                         session.bookedBy ? 'bg-green-100 text-green-700' : 'bg-blue-200 text-blue-800'
@@ -451,38 +450,6 @@ const CounselorDashboard = () => {
                 </div>
               </div>
             )}
-          </div>
-        )}
-
-        {/* History Tab */}
-        {activeTab === 'history' && (
-          <div className="space-y-4">
-            <h2 className="text-xl font-bold text-white mb-4">All Appointments</h2>
-            {appointments.map(apt => (
-              <div key={apt.id} className="bg-white/95 backdrop-blur-sm p-6 rounded-xl border border-blue-200 shadow-lg">
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <h3 className="font-bold text-blue-900">{apt.studentName}</h3>
-                    <div className="flex gap-4 text-sm text-blue-700 mt-2">
-                      <span className="flex items-center gap-1"><Calendar className="h-4 w-4" /> {apt.date}</span>
-                      <span className="flex items-center gap-1"><Clock className="h-4 w-4" /> {apt.startTime} - {apt.endTime}</span>
-                    </div>
-                    <p className="text-sm text-blue-700 mt-2"><span className="font-medium">Reason:</span> {apt.reason}</p>
-                    {apt.cancelRemark && (
-                      <p className="text-sm text-red-600 mt-2"><span className="font-medium">Cancellation Remark:</span> {apt.cancelRemark}</p>
-                    )}
-                  </div>
-                  <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                    apt.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
-                    apt.status === 'Confirmed' ? 'bg-green-100 text-green-700' :
-                    apt.status === 'Cancelled' ? 'bg-red-100 text-red-700' :
-                    'bg-blue-100 text-blue-700'
-                  }`}>
-                    {apt.status}
-                  </span>
-                </div>
-              </div>
-            ))}
           </div>
         )}
       </div>
@@ -549,6 +516,9 @@ const CounselorDashboard = () => {
                   <p className={`text-sm mt-1 ${session.bookedBy ? 'text-green-600' : 'text-slate-600'}`}>
                     {session.bookedBy ? `Booked by ${session.bookedBy}` : 'Available'}
                   </p>
+                  {session.reason && (
+                    <p className="text-xs text-slate-600 mt-1"><span className="font-medium">Reason:</span> {session.reason}</p>
+                  )}
                 </div>
               ))}
             </div>
