@@ -20,11 +20,12 @@ interface Session {
   endTime: string;
   month: string;
   bookedBy?: string;
+  reason?: string;
 }
 
 const CounselorDashboard = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'appointments' | 'sessions' | 'history'>('appointments');
+  const [activeTab, setActiveTab] = useState<'appointments' | 'sessions'>('appointments');
   const [currentMonth, setCurrentMonth] = useState(new Date(2026, 0, 1)); // January 2026
   const [showSessionForm, setShowSessionForm] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
@@ -35,6 +36,9 @@ const CounselorDashboard = () => {
   const [cancellingAppointment, setCancellingAppointment] = useState<Appointment | null>(null);
   const [cancelRemark, setCancelRemark] = useState('');
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const [cancellingSession, setCancellingSession] = useState<Session | null>(null);
+  const [showSessionCancelModal, setShowSessionCancelModal] = useState(false);
+  const [sessionCancelRemark, setSessionCancelRemark] = useState('');
 
   const counselorProfile = {
     name: 'Dr John Smith',
@@ -43,19 +47,19 @@ const CounselorDashboard = () => {
   };
 
   const [appointments, setAppointments] = useState<Appointment[]>([
-    { id: 1, studentName: 'Wong Yi Ren', date: '2026-01-12', startTime: '10:00', endTime: '11:00', status: 'Pending', reason: 'demo purposes' },
-    { id: 2, studentName: 'Sarah Lee', date: '2026-01-20', startTime: '14:00', endTime: '15:00', status: 'Pending', reason: 'Stress management' },
-    { id: 3, studentName: 'John Doe', date: '2026-01-25', startTime: '09:00', endTime: '10:00', status: 'Confirmed', reason: 'Depression' }
+    { id: 1, studentName: 'Wong Yi Ren', date: '2026-01-12', startTime: '10:00', endTime: '11:00', status: 'Pending', reason: 'Anxiety issues' },
+    { id: 2, studentName: 'John Doe', date: '2026-01-16', startTime: '11:00', endTime: '12:00', status: 'Pending', reason: 'Depression' },
+    { id: 3, studentName: 'Sarah Lee', date: '2026-01-26', startTime: '11:00', endTime: '12:00', status: 'Confirmed', reason: 'Stress management' }
   ]);
 
   const [sessions, setSessions] = useState<Session[]>([
-    { id: 1, date: '2026-01-12', startTime: '10:00', endTime: '11:00', month: 'January', bookedBy: 'Wong Yi Ren' },
+    { id: 1, date: '2026-01-12', startTime: '10:00', endTime: '11:00', month: 'January', bookedBy: 'Wong Yi Ren', reason: 'Anxiety issues' },
     { id: 2, date: '2026-01-13', startTime: '14:00', endTime: '15:00', month: 'January'},
     { id: 3, date: '2026-01-14', startTime: '15:00', endTime: '16:00', month: 'January'},
-    { id: 4, date: '2026-01-16', startTime: '11:00', endTime: '12:00', month: 'January', bookedBy: 'John Doe' },
+    { id: 4, date: '2026-01-16', startTime: '11:00', endTime: '12:00', month: 'January', bookedBy: 'John Doe', reason: 'Depression' },
     { id: 5, date: '2026-01-18', startTime: '11:00', endTime: '12:00', month: 'January' },
     { id: 6, date: '2026-01-25', startTime: '14:00', endTime: '15:00', month: 'January' },
-    { id: 7, date: '2026-01-26', startTime: '11:00', endTime: '12:00', month: 'January', bookedBy: 'Sarah Lee' },
+    { id: 7, date: '2026-01-26', startTime: '11:00', endTime: '12:00', month: 'January', bookedBy: 'Sarah Lee', reason: 'Stress management' },
     { id: 8, date: '2026-02-10', startTime: '10:00', endTime: '11:00', month: 'February' },
     { id: 9, date: '2026-02-15', startTime: '14:00', endTime: '15:00', month: 'February' },
     { id: 10, date: '2026-03-05', startTime: '09:00', endTime: '10:00', month: 'March' }
@@ -84,6 +88,20 @@ const CounselorDashboard = () => {
       setShowCancelModal(false);
       setCancellingAppointment(null);
       setCancelRemark('');
+    }
+  };
+
+  const handleSessionCancelClick = (session: Session) => {
+    setCancellingSession(session);
+    setShowSessionCancelModal(true);
+  };
+
+  const handleSessionCancelConfirm = () => {
+    if (cancellingSession && sessionCancelRemark.trim()) {
+      setSessions(prev => prev.filter(s => s.id !== cancellingSession.id));
+      setShowSessionCancelModal(false);
+      setCancellingSession(null);
+      setSessionCancelRemark('');
     }
   };
 
@@ -117,6 +135,11 @@ const CounselorDashboard = () => {
     if (newMonth >= new Date(2026, 0, 1) && newMonth <= new Date(2026, 2, 31)) {
       setCurrentMonth(newMonth);
     }
+  };
+
+  const isConfirmedBooking = (day: number) => {
+    const dateStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    return sessions.some(s => s.date === dateStr && s.bookedBy);
   };
 
   const getDaysInMonth = () => {
@@ -276,14 +299,6 @@ const CounselorDashboard = () => {
           >
             Manage AP
           </button>
-          <button
-            onClick={() => setActiveTab('history')}
-            className={`px-6 py-3 font-medium border-b-2 transition-colors ${
-              activeTab === 'history' ? 'border-white text-white bg-white/20' : 'border-transparent text-blue-200 hover:text-white hover:bg-white/10'
-            }`}
-          >
-            History
-          </button>
         </div>
 
         {/* Appointments Tab */}
@@ -421,12 +436,25 @@ const CounselorDashboard = () => {
                       <div>
                         <p className="font-medium text-blue-900">{session.date}</p>
                         <p className="text-sm text-blue-700">{session.startTime} - {session.endTime}</p>
+                        {session.reason && (
+                          <p className="text-xs text-blue-600 mt-1"><span className="font-medium">Reason:</span> {session.reason}</p>
+                        )}
                       </div>
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                        session.bookedBy ? 'bg-green-100 text-green-700' : 'bg-blue-200 text-blue-800'
-                      }`}>
-                        {session.bookedBy ? `Booked by ${session.bookedBy}` : 'Available'}
-                      </span>
+                      <div className="flex items-center gap-3">
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                          session.bookedBy ? 'bg-green-100 text-green-700' : 'bg-blue-200 text-blue-800'
+                        }`}>
+                          {session.bookedBy ? `Booked by ${session.bookedBy}` : 'Available'}
+                        </span>
+                        {session.bookedBy && (
+                          <button
+                            onClick={() => handleSessionCancelClick(session)}
+                            className="p-1 text-red-600 hover:bg-red-100 rounded transition-colors"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -440,55 +468,83 @@ const CounselorDashboard = () => {
                   {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
                     <div key={day} className="text-center font-bold text-blue-900 py-2">{day}</div>
                   ))}
-                  {getDaysInMonth().map((day, idx) => (
-                    <div
-                      key={idx}
-                      onClick={() => day && hasSessionOnDate(day) && handleDayClick(day)}
-                      className={`aspect-square flex items-center justify-center rounded-lg text-sm cursor-pointer ${
-                        day ? (hasSessionOnDate(day) ? 'bg-blue-100 text-blue-700 font-bold hover:bg-blue-200' : 'bg-blue-50 text-blue-600') : ''
-                      }`}
-                    >
-                      {day}
-                    </div>
-                  ))}
+                  {getDaysInMonth().map((day, idx) => {
+                    const sessionsForDay = day ? getSessionsForDate(day) : [];
+                    const isBooked = day && isConfirmedBooking(day);
+                    return (
+                      <div
+                        key={idx}
+                        onClick={() => day && hasSessionOnDate(day) && handleDayClick(day)}
+                        className={`aspect-square flex flex-col items-center justify-center rounded-lg text-xs cursor-pointer p-1 ${
+                          day ? (
+                            isBooked ? 'bg-green-100 text-green-800 font-bold hover:bg-green-200' :
+                            hasSessionOnDate(day) ? 'bg-blue-100 text-blue-700 font-bold hover:bg-blue-200' : 
+                            'bg-blue-50 text-blue-600'
+                          ) : ''
+                        }`}
+                      >
+                        <span className="font-medium">{day}</span>
+                        {sessionsForDay.length > 0 && (
+                          <div className="text-xs mt-1 text-center">
+                            {sessionsForDay.map((session, i) => (
+                              <div key={i} className="leading-tight">
+                                {session.startTime}-{session.endTime}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
           </div>
         )}
-
-        {/* History Tab */}
-        {activeTab === 'history' && (
-          <div className="space-y-4">
-            <h2 className="text-xl font-bold text-white mb-4">All Appointments</h2>
-            {appointments.map(apt => (
-              <div key={apt.id} className="bg-white/95 backdrop-blur-sm p-6 rounded-xl border border-blue-200 shadow-lg">
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <h3 className="font-bold text-blue-900">{apt.studentName}</h3>
-                    <div className="flex gap-4 text-sm text-blue-700 mt-2">
-                      <span className="flex items-center gap-1"><Calendar className="h-4 w-4" /> {apt.date}</span>
-                      <span className="flex items-center gap-1"><Clock className="h-4 w-4" /> {apt.startTime} - {apt.endTime}</span>
-                    </div>
-                    <p className="text-sm text-blue-700 mt-2"><span className="font-medium">Reason:</span> {apt.reason}</p>
-                    {apt.cancelRemark && (
-                      <p className="text-sm text-red-600 mt-2"><span className="font-medium">Cancellation Remark:</span> {apt.cancelRemark}</p>
-                    )}
-                  </div>
-                  <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                    apt.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
-                    apt.status === 'Confirmed' ? 'bg-green-100 text-green-700' :
-                    apt.status === 'Cancelled' ? 'bg-red-100 text-red-700' :
-                    'bg-blue-100 text-blue-700'
-                  }`}>
-                    {apt.status}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
       </div>
+
+      {/* Session Cancel Modal */}
+      {showSessionCancelModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl">
+            <div className="px-6 py-4 border-b border-slate-100">
+              <h3 className="text-lg font-bold text-slate-900">Cancel Session</h3>
+            </div>
+            <div className="p-6 space-y-4">
+              <p className="text-slate-600">Cancel session with {cancellingSession?.bookedBy} on {cancellingSession?.date}?</p>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Cancellation Reason *</label>
+                <textarea
+                  value={sessionCancelRemark}
+                  onChange={(e) => setSessionCancelRemark(e.target.value)}
+                  className="w-full p-2 border border-slate-300 rounded-lg"
+                  rows={3}
+                  placeholder="Provide reason for cancellation..."
+                />
+              </div>
+            </div>
+            <div className="p-6 bg-slate-50 flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowSessionCancelModal(false);
+                  setCancellingSession(null);
+                  setSessionCancelRemark('');
+                }}
+                className="px-4 py-2 text-slate-600 hover:bg-slate-200 rounded-lg"
+              >
+                Close
+              </button>
+              <button
+                onClick={handleSessionCancelConfirm}
+                disabled={!sessionCancelRemark.trim()}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
+              >
+                Confirm Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Cancel Modal */}
       {showCancelModal && (
@@ -552,6 +608,9 @@ const CounselorDashboard = () => {
                   <p className={`text-sm mt-1 ${session.bookedBy ? 'text-green-600' : 'text-slate-600'}`}>
                     {session.bookedBy ? `Booked by ${session.bookedBy}` : 'Available'}
                   </p>
+                  {session.reason && (
+                    <p className="text-xs text-slate-600 mt-1"><span className="font-medium">Reason:</span> {session.reason}</p>
+                  )}
                 </div>
               ))}
             </div>
