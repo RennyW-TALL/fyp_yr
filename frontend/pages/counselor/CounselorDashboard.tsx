@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Calendar, Clock, ChevronLeft, ChevronRight, X, Check, XCircle } from 'lucide-react';
+import { LogOut, Calendar, Clock, ChevronLeft, ChevronRight, X, Check, XCircle, ChevronDown, User } from 'lucide-react';
 
 interface Appointment {
   id: number;
@@ -34,6 +34,7 @@ const CounselorDashboard = () => {
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancellingAppointment, setCancellingAppointment] = useState<Appointment | null>(null);
   const [cancelRemark, setCancelRemark] = useState('');
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
 
   const counselorProfile = {
     name: 'Dr John Smith',
@@ -152,39 +153,114 @@ const CounselorDashboard = () => {
   const sessionsThisMonth = sessions.filter(s => s.month === currentMonthName);
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900">
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 shadow-sm">
+      <header className="bg-blue-900 border-b border-blue-700 shadow-lg">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center">
-              <span className="text-2xl font-bold text-indigo-600">{counselorProfile.name.split(' ').map(n => n[0]).join('')}</span>
+          {/* Logo */}
+          <div className="flex items-center gap-3">
+            <img 
+              src="/assets/images/mindcare-apu-logo.png" 
+              alt="MindCare APU" 
+              className="h-12 w-auto"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+                e.currentTarget.nextElementSibling.style.display = 'flex';
+              }}
+            />
+            <div className="h-12 w-12 bg-blue-100 rounded-lg items-center justify-center hidden">
+              <span className="text-lg font-bold text-blue-900">MC</span>
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-slate-500">Counselor Profile</h2>
-              <h1 className="text-xl font-bold text-slate-900">{counselorProfile.name}</h1>
-              <p className="text-sm text-slate-600">{counselorProfile.gender}</p>
-              <p className="text-sm text-indigo-600 font-medium">{counselorProfile.specialty} (specialty)</p>
+              <h1 className="text-xl font-bold text-white">MindCare APU</h1>
+              <p className="text-sm text-blue-200">Counselor Dashboard</p>
             </div>
           </div>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-          >
-            <LogOut className="h-4 w-4" />
-            Logout
-          </button>
+          
+          {/* Profile Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+              className="flex items-center gap-3 p-2 rounded-lg hover:bg-blue-800 transition-colors"
+            >
+              <div className="w-10 h-10 rounded-full overflow-hidden bg-blue-100 flex items-center justify-center">
+                <img 
+                  src="/assets/images/therapists/dr-john-smith.jpg" 
+                  alt={counselorProfile.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling.style.display = 'flex';
+                  }}
+                />
+                <User className="h-6 w-6 text-blue-900 hidden" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm font-medium text-white">{counselorProfile.name}</p>
+                <p className="text-xs text-blue-200">Counselor</p>
+              </div>
+              <ChevronDown className="h-4 w-4 text-blue-200" />
+            </button>
+            
+            {/* Profile Dropdown Menu */}
+            {showProfileDropdown && (
+              <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
+                <div className="p-4 border-b border-gray-100">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="w-12 h-12 rounded-full overflow-hidden bg-blue-100 flex items-center justify-center">
+                      <img 
+                        src="/assets/images/therapists/dr-john-smith.jpg" 
+                        alt={counselorProfile.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.nextElementSibling.style.display = 'flex';
+                        }}
+                      />
+                      <User className="h-8 w-8 text-blue-900 hidden" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-gray-900">{counselorProfile.name}</h3>
+                      <p className="text-sm text-gray-600">{counselorProfile.gender}</p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div>
+                      <span className="text-xs font-medium text-gray-500">SPECIALTY</span>
+                      <p className="text-sm text-blue-600 font-medium">{counselorProfile.specialty}</p>
+                    </div>
+                    <div>
+                      <span className="text-xs font-medium text-gray-500">ROLE</span>
+                      <p className="text-sm text-gray-700">Licensed Counselor</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="p-2">
+                  <button
+                    onClick={() => {
+                      setShowProfileDropdown(false);
+                      handleLogout();
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Logout
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
         {/* Tabs */}
-        <div className="flex border-b border-slate-200 mb-6">
+        <div className="flex border-b border-blue-300 mb-6 bg-white/10 backdrop-blur-sm rounded-t-lg">
           <button
             onClick={() => setActiveTab('appointments')}
             className={`px-6 py-3 font-medium border-b-2 transition-colors ${
-              activeTab === 'appointments' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500'
+              activeTab === 'appointments' ? 'border-white text-white bg-white/20' : 'border-transparent text-blue-200 hover:text-white hover:bg-white/10'
             }`}
           >
             Appointments
@@ -192,7 +268,7 @@ const CounselorDashboard = () => {
           <button
             onClick={() => setActiveTab('sessions')}
             className={`px-6 py-3 font-medium border-b-2 transition-colors ${
-              activeTab === 'sessions' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500'
+              activeTab === 'sessions' ? 'border-white text-white bg-white/20' : 'border-transparent text-blue-200 hover:text-white hover:bg-white/10'
             }`}
           >
             Appointment Sessions
@@ -200,7 +276,7 @@ const CounselorDashboard = () => {
           <button
             onClick={() => setActiveTab('history')}
             className={`px-6 py-3 font-medium border-b-2 transition-colors ${
-              activeTab === 'history' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500'
+              activeTab === 'history' ? 'border-white text-white bg-white/20' : 'border-transparent text-blue-200 hover:text-white hover:bg-white/10'
             }`}
           >
             History
@@ -210,17 +286,17 @@ const CounselorDashboard = () => {
         {/* Appointments Tab */}
         {activeTab === 'appointments' && (
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-slate-900 mb-4">Pending Appointments</h2>
+            <h2 className="text-xl font-bold text-white mb-4">Pending Appointments</h2>
             {appointments.filter(apt => apt.status === 'Pending' || apt.status === 'Confirmed').map(apt => (
-              <div key={apt.id} className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+              <div key={apt.id} className="bg-white/95 backdrop-blur-sm p-6 rounded-xl border border-blue-200 shadow-lg">
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="font-bold text-slate-900">{apt.studentName}</h3>
-                    <div className="flex gap-4 text-sm text-slate-600 mt-2">
+                    <h3 className="font-bold text-blue-900">{apt.studentName}</h3>
+                    <div className="flex gap-4 text-sm text-blue-700 mt-2">
                       <span className="flex items-center gap-1"><Calendar className="h-4 w-4" /> {apt.date}</span>
                       <span className="flex items-center gap-1"><Clock className="h-4 w-4" /> {apt.startTime} - {apt.endTime}</span>
                     </div>
-                    <p className="text-sm text-slate-600 mt-2"><span className="font-medium">Reason:</span> {apt.reason}</p>
+                    <p className="text-sm text-blue-700 mt-2"><span className="font-medium">Reason:</span> {apt.reason}</p>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className={`px-3 py-1 rounded-full text-xs font-bold ${
@@ -255,17 +331,17 @@ const CounselorDashboard = () => {
         {activeTab === 'sessions' && (
           <div>
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-bold text-slate-900">Manage Sessions</h2>
+              <h2 className="text-xl font-bold text-white">Manage Sessions</h2>
               <div className="flex gap-3">
                 <button
                   onClick={() => { setShowSessionForm(true); setShowCalendar(false); }}
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                 >
                   Create Session
                 </button>
                 <button
                   onClick={() => { setShowCalendar(true); setShowSessionForm(false); }}
-                  className="px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700"
+                  className="px-4 py-2 bg-blue-700 text-white rounded-lg hover:bg-blue-800"
                 >
                   View Calendar
                 </button>
@@ -273,19 +349,19 @@ const CounselorDashboard = () => {
             </div>
 
             {/* Month Navigation */}
-            <div className="flex items-center justify-between mb-6 bg-white p-4 rounded-lg border border-slate-200">
+            <div className="flex items-center justify-between mb-6 bg-white/95 backdrop-blur-sm p-4 rounded-lg border border-blue-200">
               <button
                 onClick={() => changeMonth(-1)}
                 disabled={currentMonth <= new Date(2026, 0, 1)}
-                className="p-2 hover:bg-slate-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-2 hover:bg-blue-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed text-blue-900"
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
-              <h3 className="text-lg font-bold text-slate-900">{monthName}</h3>
+              <h3 className="text-lg font-bold text-blue-900">{monthName}</h3>
               <button
                 onClick={() => changeMonth(1)}
                 disabled={currentMonth >= new Date(2026, 2, 1)}
-                className="p-2 hover:bg-slate-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-2 hover:bg-blue-100 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed text-blue-900"
               >
                 <ChevronRight className="h-5 w-5" />
               </button>
@@ -293,24 +369,24 @@ const CounselorDashboard = () => {
 
             {/* Session Form */}
             {showSessionForm && (
-              <div className="bg-white p-6 rounded-xl border border-slate-200 mb-6">
-                <h3 className="text-lg font-bold text-slate-900 mb-4">{currentMonthName}</h3>
+              <div className="bg-white/95 backdrop-blur-sm p-6 rounded-xl border border-blue-200 mb-6">
+                <h3 className="text-lg font-bold text-blue-900 mb-4">{currentMonthName}</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Date</label>
+                    <label className="block text-sm font-medium text-blue-800 mb-1">Date</label>
                     <input
                       type="date"
                       value={sessionForm.date}
                       onChange={(e) => setSessionForm({ ...sessionForm, date: e.target.value })}
-                      className="w-full p-2 border border-slate-300 rounded-lg"
+                      className="w-full p-2 border border-blue-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Time (Working Hours)</label>
+                    <label className="block text-sm font-medium text-blue-800 mb-1">Time (Working Hours)</label>
                     <select
                       value={sessionForm.time}
                       onChange={(e) => setSessionForm({ ...sessionForm, time: e.target.value })}
-                      className="w-full p-2 border border-slate-300 rounded-lg"
+                      className="w-full p-2 border border-blue-300 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                     >
                       <option value="">Select time</option>
                       <option value="09:00">09:00 - 10:00</option>
@@ -325,7 +401,7 @@ const CounselorDashboard = () => {
                 </div>
                 <button
                   onClick={handleCreateSession}
-                  className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+                  className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
                 >
                   Add Session
                 </button>
@@ -334,17 +410,17 @@ const CounselorDashboard = () => {
 
             {/* Sessions List */}
             {!showCalendar && (
-              <div className="bg-white p-6 rounded-xl border border-slate-200">
-                <h3 className="text-lg font-bold text-slate-900 mb-4">{currentMonthName} Sessions ({sessionsThisMonth.length})</h3>
+              <div className="bg-white/95 backdrop-blur-sm p-6 rounded-xl border border-blue-200">
+                <h3 className="text-lg font-bold text-blue-900 mb-4">{currentMonthName} Sessions ({sessionsThisMonth.length})</h3>
                 <div className="space-y-3">
                   {sessionsThisMonth.map(session => (
-                    <div key={session.id} className="flex justify-between items-center p-4 bg-slate-50 rounded-lg">
+                    <div key={session.id} className="flex justify-between items-center p-4 bg-blue-50 rounded-lg">
                       <div>
-                        <p className="font-medium text-slate-900">{session.date}</p>
-                        <p className="text-sm text-slate-600">{session.startTime} - {session.endTime}</p>
+                        <p className="font-medium text-blue-900">{session.date}</p>
+                        <p className="text-sm text-blue-700">{session.startTime} - {session.endTime}</p>
                       </div>
                       <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                        session.bookedBy ? 'bg-green-100 text-green-700' : 'bg-slate-200 text-slate-700'
+                        session.bookedBy ? 'bg-green-100 text-green-700' : 'bg-blue-200 text-blue-800'
                       }`}>
                         {session.bookedBy ? `Booked by ${session.bookedBy}` : 'Available'}
                       </span>
@@ -356,17 +432,17 @@ const CounselorDashboard = () => {
 
             {/* Calendar View */}
             {showCalendar && (
-              <div className="bg-white p-6 rounded-xl border border-slate-200">
+              <div className="bg-white/95 backdrop-blur-sm p-6 rounded-xl border border-blue-200">
                 <div className="grid grid-cols-7 gap-2">
                   {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                    <div key={day} className="text-center font-bold text-slate-700 py-2">{day}</div>
+                    <div key={day} className="text-center font-bold text-blue-900 py-2">{day}</div>
                   ))}
                   {getDaysInMonth().map((day, idx) => (
                     <div
                       key={idx}
                       onClick={() => day && hasSessionOnDate(day) && handleDayClick(day)}
                       className={`aspect-square flex items-center justify-center rounded-lg text-sm cursor-pointer ${
-                        day ? (hasSessionOnDate(day) ? 'bg-indigo-100 text-indigo-700 font-bold hover:bg-indigo-200' : 'bg-slate-50 text-slate-600') : ''
+                        day ? (hasSessionOnDate(day) ? 'bg-blue-100 text-blue-700 font-bold hover:bg-blue-200' : 'bg-blue-50 text-blue-600') : ''
                       }`}
                     >
                       {day}
@@ -381,17 +457,17 @@ const CounselorDashboard = () => {
         {/* History Tab */}
         {activeTab === 'history' && (
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-slate-900 mb-4">All Appointments</h2>
+            <h2 className="text-xl font-bold text-white mb-4">All Appointments</h2>
             {appointments.map(apt => (
-              <div key={apt.id} className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+              <div key={apt.id} className="bg-white/95 backdrop-blur-sm p-6 rounded-xl border border-blue-200 shadow-lg">
                 <div className="flex justify-between items-start">
                   <div className="flex-1">
-                    <h3 className="font-bold text-slate-900">{apt.studentName}</h3>
-                    <div className="flex gap-4 text-sm text-slate-600 mt-2">
+                    <h3 className="font-bold text-blue-900">{apt.studentName}</h3>
+                    <div className="flex gap-4 text-sm text-blue-700 mt-2">
                       <span className="flex items-center gap-1"><Calendar className="h-4 w-4" /> {apt.date}</span>
                       <span className="flex items-center gap-1"><Clock className="h-4 w-4" /> {apt.startTime} - {apt.endTime}</span>
                     </div>
-                    <p className="text-sm text-slate-600 mt-2"><span className="font-medium">Reason:</span> {apt.reason}</p>
+                    <p className="text-sm text-blue-700 mt-2"><span className="font-medium">Reason:</span> {apt.reason}</p>
                     {apt.cancelRemark && (
                       <p className="text-sm text-red-600 mt-2"><span className="font-medium">Cancellation Remark:</span> {apt.cancelRemark}</p>
                     )}
@@ -400,7 +476,7 @@ const CounselorDashboard = () => {
                     apt.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
                     apt.status === 'Confirmed' ? 'bg-green-100 text-green-700' :
                     apt.status === 'Cancelled' ? 'bg-red-100 text-red-700' :
-                    'bg-slate-100 text-slate-700'
+                    'bg-blue-100 text-blue-700'
                   }`}>
                     {apt.status}
                   </span>
