@@ -223,7 +223,9 @@ const StudentDashboard = () => {
               <h4 className="font-semibold text-slate-800">PHQ-9 Assessment</h4>
               <p className="text-xs text-slate-500">Screening for depressive symptoms</p>
             </div>
-            <button className="text-sm font-medium text-brand-600 bg-white px-3 py-1.5 border border-slate-200 rounded-lg shadow-sm">Start</button>
+            <Link to="/student/phq9" className="text-sm font-medium text-brand-600 bg-white px-3 py-1.5 border border-slate-200 rounded-lg shadow-sm hover:bg-brand-50 transition-colors">
+              Start
+            </Link>
           </div>
           <div className="flex items-center justify-between p-4 rounded-xl border border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer">
             <div>
