@@ -25,6 +25,7 @@ const CareCompanion = () => {
   ]);
   const [input, setInput] = useState("");
   const [conversationStep, setConversationStep] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
   const staticConversation = [
@@ -60,13 +61,14 @@ const CareCompanion = () => {
 
   const handleSend = (e) => {
     e.preventDefault();
-    if (!input.trim() || conversationStep >= staticConversation.length) return;
+    if (!input.trim() || conversationStep >= staticConversation.length || isLoading) return;
 
     const userMsg = { id: Date.now(), text: input, sender: 'user' };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
+    setIsLoading(true);
 
-    // Add bot response after a short delay
+    // Add bot response after loading delay
     setTimeout(() => {
       const botMsg = { 
         id: Date.now() + 1, 
@@ -75,7 +77,8 @@ const CareCompanion = () => {
       };
       setMessages((prev) => [...prev, botMsg]);
       setConversationStep(prev => prev + 1);
-    }, 1000);
+      setIsLoading(false);
+    }, 2500);
   };
 
   const getPlaceholderText = () => {
@@ -120,7 +123,17 @@ const CareCompanion = () => {
                 </div>
               </div>
             ))}
-            {/* Typing Indicator - removed since we're using static responses */}
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="bg-white text-slate-700 border border-slate-200 rounded-2xl rounded-bl-none shadow-sm p-3 max-w-[85%]">
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></div>
+                    <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                    <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                  </div>
+                </div>
+              </div>
+            )}
             <div ref={messagesEndRef} />
           </div>
 
@@ -135,7 +148,8 @@ const CareCompanion = () => {
             />
             <button
               type="submit"
-              className="bg-brand-600 hover:bg-brand-700 text-white p-2 rounded-full transition-colors shadow-md"
+              disabled={isLoading}
+              className={`${isLoading ? 'bg-slate-400' : 'bg-brand-600 hover:bg-brand-700'} text-white p-2 rounded-full transition-colors shadow-md disabled:cursor-not-allowed`}
             >
               <SendIcon />
             </button>
