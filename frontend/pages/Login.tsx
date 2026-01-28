@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Brain, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { localDB } from '../services/localStorageDB';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -25,35 +26,54 @@ const Login = () => {
     setLoading(true);
     setMessage({ type: '', text: '' });
 
-    const staticUsers = {
-      'student1': { role: 'student', password: 'abc123' },
-      'counselor1': { role: 'counselor', password: 'abc123' },
-      'admin01': { role: 'admin', password: 'abc123' }
-    };
-
-    const user = staticUsers[formData.username as keyof typeof staticUsers];
+    // Try localStorage database first
+    const dbUser = localDB.login(formData.username, formData.password);
     
-    if (user && user.password === formData.password) {
-      setMessage({ type: 'success', text: `Login successful as ${user.role.toUpperCase()}! Redirecting...` });
-      
-      const userData = {
-        username: formData.username,
-        role: user.role
-      };
-      
-      localStorage.setItem('user', JSON.stringify(userData));
+    if (dbUser) {
+      setMessage({ type: 'success', text: `Login successful as ${dbUser.role.toUpperCase()}! Redirecting...` });
+      localStorage.setItem('user', JSON.stringify(dbUser));
       
       setTimeout(() => {
-        if (user.role === 'student') {
+        if (dbUser.role === 'student') {
           navigate('/student/dashboard');
-        } else if (user.role === 'counselor') {
+        } else if (dbUser.role === 'counselor') {
           navigate('/counselor/dashboard');
-        } else if (user.role === 'admin') {
+        } else if (dbUser.role === 'admin') {
           navigate('/admin/dashboard');
         }
       }, 1500);
     } else {
-      setMessage({ type: 'error', text: 'Invalid username or password' });
+      // Fallback to static users
+      const staticUsers = {
+        'student1': { role: 'student', password: 'abc123' },
+        'counselor1': { role: 'counselor', password: 'abc123' },
+        'admin01': { role: 'admin', password: 'abc123' }
+      };
+
+      const user = staticUsers[formData.username as keyof typeof staticUsers];
+      
+      if (user && user.password === formData.password) {
+        setMessage({ type: 'success', text: `Login successful as ${user.role.toUpperCase()}! Redirecting...` });
+        
+        const userData = {
+          username: formData.username,
+          role: user.role
+        };
+        
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        setTimeout(() => {
+          if (user.role === 'student') {
+            navigate('/student/dashboard');
+          } else if (user.role === 'counselor') {
+            navigate('/counselor/dashboard');
+          } else if (user.role === 'admin') {
+            navigate('/admin/dashboard');
+          }
+        }, 1500);
+      } else {
+        setMessage({ type: 'error', text: 'Invalid username or password' });
+      }
     }
     
     setLoading(false);

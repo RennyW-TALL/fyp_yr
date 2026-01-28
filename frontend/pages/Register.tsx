@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Brain, Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { localDB } from '../services/localStorageDB';
 
 const Register = () => {
   const [userType, setUserType] = useState('student');
@@ -51,44 +52,30 @@ const Register = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      const registrationData = {
-        username: formData.username,
-        email: formData.email,
-        password: formData.password,
-        role: userType,
-        fullName: formData.full_name,
-        ...(userType === 'student' ? {
+      if (userType === 'student') {
+        const studentData = {
+          username: formData.username,
+          email: formData.email,
+          password: formData.password,
+          role: 'student' as const,
           tpNumber: formData.tp_number,
+          fullName: formData.full_name,
           gender: formData.gender,
-          age: parseInt(formData.age) || null,
+          age: parseInt(formData.age) || 18,
           course: formData.course,
-          yearOfStudy: parseInt(formData.year_of_study) || null
-        } : {
-          gender: formData.gender,
-          specialization: formData.specialization
-        })
-      };
+          yearOfStudy: parseInt(formData.year_of_study) || 1
+        };
 
-      const response = await fetch('http://13.251.172.57/API/auth/register.php', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(registrationData)
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
+        localDB.registerStudent(studentData);
         setMessage({ type: 'success', text: 'Registration successful! Redirecting to login...' });
         setTimeout(() => {
           navigate('/login');
         }, 2000);
       } else {
-        setMessage({ type: 'error', text: data.message || 'Registration failed' });
+        setMessage({ type: 'error', text: 'Counselor registration not implemented yet' });
       }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Network error. Please try again.' });
+      setMessage({ type: 'error', text: error instanceof Error ? error.message : 'Registration failed' });
     } finally {
       setLoading(false);
     }

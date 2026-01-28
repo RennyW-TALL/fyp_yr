@@ -12,7 +12,11 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    // Initialize user from localStorage on app start
+    const savedUser = localStorage.getItem('user');
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
   const [isLoading, setIsLoading] = useState(false);
 
   const login = async (email: string, pass: string) => {
@@ -42,6 +46,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
   const logout = () => {
     setUser(null);
+    localStorage.removeItem('user');
   };
 
   return (

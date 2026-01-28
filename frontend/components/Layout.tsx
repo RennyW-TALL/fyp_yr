@@ -80,11 +80,11 @@ const Layout = ({ children }: PropsWithChildren) => {
         <div className="p-4 border-t border-slate-100">
           <div className="flex items-center gap-3 mb-4 px-2">
             <div className="h-8 w-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-bold text-sm">
-                {user.name.charAt(0)}
+                {user.fullName ? user.fullName.charAt(0) : user.username?.charAt(0) || 'U'}
             </div>
             <div className="flex-1 overflow-hidden">
-                <p className="text-sm font-medium text-slate-900 truncate">{user.name}</p>
-                <p className="text-xs text-slate-500 truncate capitalize">{user.role.toLowerCase()}</p>
+                <p className="text-sm font-medium text-slate-900 truncate">{user.fullName || user.username}</p>
+                <p className="text-xs text-slate-500 truncate capitalize">{user.role?.toLowerCase()}</p>
             </div>
           </div>
           <button
