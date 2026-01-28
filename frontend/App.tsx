@@ -2,12 +2,14 @@ import React, { PropsWithChildren } from 'react';
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Layout from './components/Layout';
+import FloatingChatbot from './components/FloatingChatbot';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Landing from './pages/Landing';
 import StudentDashboard from './pages/student/StudentDashboard';
 import PHQ9Assessment from './pages/student/PHQ9Assessment';
 import AppointmentsPage from './pages/student/AppointmentsPage';
+
 import AdminDashboard from './pages/admin/AdminDashboard';
 import UserManagement from './pages/admin/UserManagement';
 import CounselorDashboard from './pages/counselor/CounselorDashboard';
@@ -33,6 +35,7 @@ const AppRoutes = () => {
                             <Route path="dashboard" element={<StudentDashboard />} />
                             <Route path="phq9" element={<PHQ9Assessment />} />
                             <Route path="appointments" element={<AppointmentsPage />} />
+
                         </Routes>
                     </Layout>
                 </ProtectedRoute>
@@ -74,6 +77,7 @@ const App = () => {
     <Router>
         <AuthProvider>
             <AppRoutes />
+            <FloatingChatbot />
         </AuthProvider>
     </Router>
   );
