@@ -102,25 +102,25 @@ const AppointmentsPage = () => {
   
   const availableSessions = {
     'Dr. Mei Lee': [
-      { date: '2026-02-08', start_time: '14:00:00', end_time: '15:00:00', display: '8th Jan 2026 - 2pm to 3pm' },
-      { date: '2026-02-09', start_time: '14:00:00', end_time: '15:00:00', display: '9th Jan 2026 - 2pm to 3pm' },
-      { date: '2026-02-09', start_time: '16:00:00', end_time: '17:00:00', display: '9th Jan 2026 - 4pm to 5pm' },
-      { date: '2026-02-18', start_time: '14:00:00', end_time: '15:00:00', display: '18th Jan 2026 - 2pm to 3pm' },
-      { date: '2026-02-22', start_time: '09:00:00', end_time: '10:00:00', display: '22nd Jan 2026 - 9am to 10am' }
+      { date: '2026-02-08', start_time: '14:00:00', end_time: '15:00:00', display: '8th Feb 2026 - 2pm to 3pm' },
+      { date: '2026-02-09', start_time: '14:00:00', end_time: '15:00:00', display: '9th Feb 2026 - 2pm to 3pm' },
+      { date: '2026-02-09', start_time: '16:00:00', end_time: '17:00:00', display: '9th Feb 2026 - 4pm to 5pm' },
+      { date: '2026-02-18', start_time: '14:00:00', end_time: '15:00:00', display: '18th Feb 2026 - 2pm to 3pm' },
+      { date: '2026-02-22', start_time: '09:00:00', end_time: '10:00:00', display: '22nd Feb 2026 - 9am to 10am' }
     ],
     'Dr. John Smith': [
-      { date: '2026-02-12', start_time: '10:00:00', end_time: '11:00:00', display: '12th Jan 2026 - 10am to 11am' },
-      { date: '2026-02-13', start_time: '14:00:00', end_time: '15:00:00', display: '12th Jan 2026 - 2pm to 3pm' },
-      { date: '2026-02-14', start_time: '15:00:00', end_time: '16:00:00', display: '13th Jan 2026 - 3pm to 4pm' },
-      { date: '2026-02-18', start_time: '11:00:00', end_time: '12:00:00', display: '18th Jan 2026 - 11am to 12pm' },
-      { date: '2026-02-25', start_time: '14:00:00', end_time: '15:00:00', display: '25th Jan 2026 - 2pm to 3pm' }
+      { date: '2026-02-12', start_time: '10:00:00', end_time: '11:00:00', display: '12th Feb 2026 - 10am to 11am' },
+      { date: '2026-02-13', start_time: '14:00:00', end_time: '15:00:00', display: '12th Feb 2026 - 2pm to 3pm' },
+      { date: '2026-02-14', start_time: '15:00:00', end_time: '16:00:00', display: '13th Feb 2026 - 3pm to 4pm' },
+      { date: '2026-02-18', start_time: '11:00:00', end_time: '12:00:00', display: '18th Feb 2026 - 11am to 12pm' },
+      { date: '2026-02-25', start_time: '14:00:00', end_time: '15:00:00', display: '25th Feb 2026 - 2pm to 3pm' }
     ],
     'Dr. Wilson House': [
-      { date: '2026-02-14', start_time: '09:00:00', end_time: '10:00:00', display: '14th Jan 2026 - 9am to 10am' },
-      { date: '2026-02-14', start_time: '13:00:00', end_time: '14:00:00', display: '14th Jan 2026 - 1pm to 2pm' },
-      { date: '2026-02-15', start_time: '11:00:00', end_time: '12:00:00', display: '15th Jan 2026 - 11am to 12pm' },
-      { date: '2026-02-20', start_time: '10:00:00', end_time: '11:00:00', display: '20th Jan 2026 - 10am to 11am' },
-      { date: '2026-02-24', start_time: '15:00:00', end_time: '16:00:00', display: '24th Jan 2026 - 3pm to 4pm' }
+      { date: '2026-02-14', start_time: '09:00:00', end_time: '10:00:00', display: '14th Feb 2026 - 9am to 10am' },
+      { date: '2026-02-14', start_time: '13:00:00', end_time: '14:00:00', display: '14th Feb 2026 - 1pm to 2pm' },
+      { date: '2026-02-15', start_time: '11:00:00', end_time: '12:00:00', display: '15th Feb 2026 - 11am to 12pm' },
+      { date: '2026-02-20', start_time: '10:00:00', end_time: '11:00:00', display: '20th Feb 2026 - 10am to 11am' },
+      { date: '2026-02-24', start_time: '15:00:00', end_time: '16:00:00', display: '24th Feb 2026 - 3pm to 4pm' }
     ]
   };
   
