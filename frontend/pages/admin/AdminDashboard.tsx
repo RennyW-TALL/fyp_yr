@@ -30,7 +30,7 @@ interface PendingCounselor {
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const { students, therapists, pendingTherapists, approveTherapist, rejectTherapist } = useDatabase('admin01');
+  const { students, therapists, pendingTherapists, approveTherapist, rejectTherapist, deleteStudent, deleteTherapist, updateStudent, updateTherapist, addStudent, addPendingTherapist } = useDatabase('admin01');
   
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -69,52 +69,94 @@ const AdminDashboard = () => {
     setShowDeleteModal(true);
   };
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (deletingItem) {
-      if (deletingItem.type === 'student') {
-        setStudents(prev => prev.filter(s => s.id !== deletingItem.id));
-        showSuccessMessage('Student deleted successfully from database');
-      } else {
-        setCounselors(prev => prev.filter(c => c.id !== deletingItem.id));
-        showSuccessMessage('Counselor deleted successfully from database');
+      try {
+        if (deletingItem.type === 'student') {
+          const student = students.find(s => s.username === deletingItem.id.toString());
+          if (student) {
+            await deleteStudent(student.username);
+            showSuccessMessage('Student deleted successfully from database');
+          }
+        } else {
+          await deleteTherapist(deletingItem.id);
+          showSuccessMessage('Counselor deleted successfully from database');
+        }
+      } catch (error) {
+        console.error('Error deleting:', error);
       }
     }
     setShowDeleteModal(false);
     setDeletingItem(null);
   };
 
-  const handleBulkDelete = (type: 'student' | 'counselor') => {
-    if (type === 'student' && selectedStudents.length > 0) {
-      setStudents(prev => prev.filter(s => !selectedStudents.includes(s.id)));
-      showSuccessMessage(`${selectedStudents.length} student(s) deleted successfully from database`);
-      setSelectedStudents([]);
-    } else if (type === 'counselor' && selectedCounselors.length > 0) {
-      setCounselors(prev => prev.filter(c => !selectedCounselors.includes(c.id)));
-      showSuccessMessage(`${selectedCounselors.length} counselor(s) deleted successfully from database`);
-      setSelectedCounselors([]);
+  const handleBulkDelete = async (type: 'student' | 'counselor') => {
+    try {
+      if (type === 'student' && selectedStudents.length > 0) {
+        for (const studentIndex of selectedStudents) {
+          const student = students[studentIndex];
+          if (student) {
+            await deleteStudent(student.username);
+          }
+        }
+        showSuccessMessage(`${selectedStudents.length} student(s) deleted successfully from database`);
+        setSelectedStudents([]);
+      } else if (type === 'counselor' && selectedCounselors.length > 0) {
+        for (const counselorId of selectedCounselors) {
+          await deleteTherapist(counselorId);
+        }
+        showSuccessMessage(`${selectedCounselors.length} counselor(s) deleted successfully from database`);
+        setSelectedCounselors([]);
+      }
+    } catch (error) {
+      console.error('Error bulk deleting:', error);
     }
   };
 
-  const handleSaveEdit = () => {
-    if (editingStudent) {
-      setStudents(prev => prev.map(s => s.id === editingStudent.id ? editingStudent : s));
-      showSuccessMessage('Student updated successfully in database');
-    } else if (editingCounselor) {
-      setCounselors(prev => prev.map(c => c.id === editingCounselor.id ? editingCounselor : c));
-      showSuccessMessage('Counselor updated successfully in database');
+  const handleSaveEdit = async () => {
+    try {
+      if (editingStudent) {
+        const student = students.find(s => s.username === editingStudent.id.toString());
+        if (student) {
+          await updateStudent(student.username, { fullName: editingStudent.name });
+          showSuccessMessage('Student updated successfully in database');
+        }
+      } else if (editingCounselor) {
+        await updateTherapist(editingCounselor.id, { name: editingCounselor.name, gender: editingCounselor.gender, specialization: editingCounselor.specialty });
+        showSuccessMessage('Counselor updated successfully in database');
+      }
+    } catch (error) {
+      console.error('Error updating:', error);
     }
     setShowEditModal(false);
     setEditingStudent(null);
     setEditingCounselor(null);
   };
 
-  const handleAddNew = () => {
-    if (addingType === 'student' && editingStudent) {
-      setStudents(prev => [...prev, { ...editingStudent, id: Math.max(...prev.map(s => s.id)) + 1 }]);
-      showSuccessMessage('Student added successfully to database');
-    } else if (addingType === 'counselor' && editingCounselor) {
-      setCounselors(prev => [...prev, { ...editingCounselor, id: Math.max(...prev.map(c => c.id)) + 1 }]);
-      showSuccessMessage('Counselor added successfully to database');
+  const handleAddNew = async () => {
+    try {
+      if (addingType === 'student' && editingStudent) {
+        await addStudent({
+          username: `student_${Date.now()}`,
+          fullName: editingStudent.name,
+          email: `${editingStudent.name.toLowerCase().replace(' ', '')}@university.edu`,
+          studentId: `STU${Date.now().toString().slice(-3)}`
+        });
+        showSuccessMessage('Student added successfully to database');
+      } else if (addingType === 'counselor' && editingCounselor) {
+        await addPendingTherapist({
+          name: editingCounselor.name,
+          email: `${editingCounselor.name.toLowerCase().replace(' ', '')}@example.com`,
+          gender: editingCounselor.gender,
+          specialization: editingCounselor.specialty,
+          qualifications: 'To be verified',
+          experience: 'To be verified',
+          profileImage: '/images/therapists/default.jpg'
+        });
+        showSuccessMessage('Counselor added to pending list');
+      }
+    } catch (error) {
+      console.error('Error adding:', error);
     }
     setShowAddModal(false);
     setEditingStudent(null);
