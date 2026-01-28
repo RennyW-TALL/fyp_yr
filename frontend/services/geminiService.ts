@@ -1,5 +1,5 @@
 const getGeminiApiKey = async (): Promise<string> => {
-  const response = await fetch('http://localhost:5000/api/config/gemini-key');
+  const response = await fetch('http://13.251.172.57/api/config/gemini-key');
   if (!response.ok) throw new Error('Failed to fetch API key');
   const data = await response.json();
   return data.apiKey;
