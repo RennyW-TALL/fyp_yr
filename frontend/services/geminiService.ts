@@ -1,6 +1,6 @@
 const GEMINI_API_KEY = 'AIzaSyCCzLwpd78OC79c9SVRDbqNNj-DCDeLJvs';
 const MODEL = 'gemini-2.5-flash';
-const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1/models/${MODEL}:generateContent`;
+const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
 
 const SYSTEM_PROMPT = `You are "CareCompanion", a supportive, non-clinical chatbot inside a Mental Healthcare Appointment System.
 
@@ -114,6 +114,7 @@ export const sendMessageToGemini = async (
   if (!response.ok) {
     console.error("Gemini status:", response.status);
     console.error("Gemini response:", data);
+    console.error("Full error details:", JSON.stringify(data, null, 2));
 
     const msg =
       typeof data === "object" && data && "error" in data && (data as GeminiResponse).error?.message
