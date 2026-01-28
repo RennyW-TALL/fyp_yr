@@ -1,4 +1,4 @@
-const GEMINI_API_KEY = 'AIzaSyCCzLwpd78OC79c9SVRDbqNNj-DCDeLJvs';
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const MODEL = 'gemini-2.5-flash';
 const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
 
@@ -113,7 +113,7 @@ export const sendMessageToGemini = async (
 
   if (!response.ok) {
     console.error("Gemini status:", response.status);
-    console.error("Gemini response:", data);
+    console.error("Gemini response:", data);ß
     console.error("Full error details:", JSON.stringify(data, null, 2));
 
     const msg =
