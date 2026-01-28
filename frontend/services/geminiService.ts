@@ -120,7 +120,7 @@ export const sendMessageToGemini = async (
   if (!response.ok) {
     console.error("Gemini status:", response.status);
     console.error("Gemini response:", data);
-    console.log("Gemini error message:", data?.error?.message);
+    console.log("Gemini error message:", typeof data === "object" && data && "error" in data ? (data as GeminiResponse).error?.message : undefined);
     console.error("Full error details:", JSON.stringify(data, null, 2));
 
     const msg =
