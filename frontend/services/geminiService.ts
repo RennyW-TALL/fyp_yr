@@ -1,5 +1,5 @@
 const GEMINI_API_KEY = 'AIzaSyCCzLwpd78OC79c9SVRDbqNNj-DCDeLJvs';
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
 const SYSTEM_PROMPT = `You are "CareCompanion", a supportive, non-clinical chatbot inside a Mental Healthcare Appointment System.
 
