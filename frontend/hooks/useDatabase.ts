@@ -4,6 +4,7 @@ import localDatabase, { Appointment, Therapist, TherapistAvailability } from '..
 export const useDatabase = (username?: string) => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [therapists, setTherapists] = useState<Therapist[]>([]);
+  const [therapistAppointments, setTherapistAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(false);
 
   // Load initial data
@@ -16,11 +17,20 @@ export const useDatabase = (username?: string) => {
 
   // Listen for storage changes for real-time sync
   useEffect(() => {
-    const handleStorageChange = () => {
+    const handleStorageChange = (e: StorageEvent) => {
       if (username) {
         setAppointments(localDatabase.getAppointments(username));
       }
       setTherapists(localDatabase.getTherapists());
+      
+      // Update therapist appointments for all therapists
+      if (e.key === 'therapist_appointments_sync' || e.key === 'appointments_sync') {
+        // Force refresh of therapist appointments
+        setTherapistAppointments([]);
+        setTimeout(() => {
+          // This will trigger a re-render and fresh data fetch
+        }, 0);
+      }
     };
 
     window.addEventListener('storage', handleStorageChange);
@@ -123,7 +133,9 @@ export const useDatabase = (username?: string) => {
 
   // Therapist operations
   const getAppointmentsByTherapist = useCallback((therapistId: number) => {
-    return localDatabase.getAppointmentsByTherapist(therapistId);
+    const appointments = localDatabase.getAppointmentsByTherapist(therapistId);
+    setTherapistAppointments(appointments);
+    return appointments;
   }, []);
 
   const updateAppointmentStatus = useCallback(async (appointmentId: number, status: 'Confirmed' | 'Cancelled', reason?: string) => {
@@ -152,6 +164,7 @@ export const useDatabase = (username?: string) => {
     // Data
     appointments,
     therapists,
+    therapistAppointments,
     loading,
     
     // Operations

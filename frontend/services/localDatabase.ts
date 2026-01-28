@@ -307,7 +307,7 @@ class LocalDatabase {
       }
     }
     
-    return allAppointments.sort((a, b) => new Date(b.appointment_date).getTime() - new Date(a.appointment_date).getTime());
+    return allAppointments.sort((a, b) => new Date(a.appointment_date).getTime() - new Date(b.appointment_date).getTime());
   }
 
   // Update appointment status (for therapist actions)
@@ -370,9 +370,13 @@ class LocalDatabase {
 
   // Utility methods
   private notifyChange() {
-    // Trigger storage event for cross-tab sync
+    // Trigger multiple storage events for comprehensive sync
     window.dispatchEvent(new StorageEvent('storage', {
       key: 'appointments_sync',
+      newValue: Date.now().toString()
+    }));
+    window.dispatchEvent(new StorageEvent('storage', {
+      key: 'therapist_appointments_sync',
       newValue: Date.now().toString()
     }));
   }
