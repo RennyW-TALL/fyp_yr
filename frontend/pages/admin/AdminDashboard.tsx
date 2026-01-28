@@ -19,8 +19,11 @@ interface Student {
 interface Counselor {
   id: number;
   name: string;
+  email: string;
   gender: string;
   specialty: string;
+  qualifications: string;
+  experience: string;
 }
 
 interface PendingCounselor {
@@ -47,6 +50,7 @@ const AdminDashboard = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [pendingSearchQuery, setPendingSearchQuery] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
   const [activeView, setActiveView] = useState<'dashboard' | 'students' | 'counselors' | 'pending'>('dashboard');
 
   const totalUsers = MOCK_USERS.length;
@@ -153,11 +157,11 @@ const AdminDashboard = () => {
       } else if (addingType === 'counselor' && editingCounselor) {
         await addPendingTherapist({
           name: editingCounselor.name,
-          email: `${editingCounselor.name.toLowerCase().replace(' ', '')}@example.com`,
+          email: editingCounselor.email,
           gender: editingCounselor.gender,
           specialization: editingCounselor.specialty,
-          qualifications: 'To be verified',
-          experience: 'To be verified',
+          qualifications: editingCounselor.qualifications,
+          experience: editingCounselor.experience,
           profileImage: '/images/therapists/default.jpg'
         });
         showSuccessMessage('Counselor added to pending list');
@@ -173,6 +177,11 @@ const AdminDashboard = () => {
   const showSuccessMessage = (message: string) => {
     setSuccessMessage(message);
     setTimeout(() => setSuccessMessage(''), 3000);
+  };
+
+  const showErrorMessage = (message: string) => {
+    setErrorMessage(message);
+    setTimeout(() => setErrorMessage(''), 3000);
   };
 
   const filteredStudents = students.filter(s => s.fullName.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -191,7 +200,7 @@ const AdminDashboard = () => {
   const handleRejectCounselor = async (id: number) => {
     try {
       await rejectTherapist(id);
-      showSuccessMessage('Counselor registration rejected');
+      showErrorMessage('Counselor registration rejected');
     } catch (error) {
       console.error('Error rejecting counselor:', error);
     }
@@ -216,7 +225,7 @@ const AdminDashboard = () => {
         await rejectTherapist(id);
       }
       setSelectedPendingCounselors([]);
-      showSuccessMessage(`${count} counselor(s) rejected`);
+      showErrorMessage(`${count} counselor(s) rejected`);
     } catch (error) {
       console.error('Error bulk rejecting counselors:', error);
     }
@@ -228,6 +237,13 @@ const AdminDashboard = () => {
       {successMessage && (
         <div className="fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg animate-fade-in">
           {successMessage}
+        </div>
+      )}
+      
+      {/* Error Message */}
+      {errorMessage && (
+        <div className="fixed top-4 right-4 z-50 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg animate-fade-in">
+          {errorMessage}
         </div>
       )}
       
@@ -450,7 +466,7 @@ const AdminDashboard = () => {
                 <button
                   onClick={() => {
                     setAddingType('counselor');
-                    setEditingCounselor({ id: 0, name: '', gender: 'Male', specialty: '' });
+                    setEditingCounselor({ id: 0, name: '', email: '', gender: 'Male', specialty: '', qualifications: '', experience: '' });
                     setShowAddModal(true);
                   }}
                   className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
@@ -759,11 +775,21 @@ const AdminDashboard = () => {
               {addingType === 'counselor' && editingCounselor && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Name</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
                     <input
                       type="text"
                       value={editingCounselor.name}
                       onChange={(e) => setEditingCounselor({...editingCounselor, name: e.target.value})}
+                      className="w-full p-2 border border-red-300 rounded-lg"
+                      placeholder="e.g., Dr. John Smith"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                    <input
+                      type="email"
+                      value={editingCounselor.email}
+                      onChange={(e) => setEditingCounselor({...editingCounselor, email: e.target.value})}
                       className="w-full p-2 border border-red-300 rounded-lg"
                     />
                   </div>
@@ -776,15 +802,37 @@ const AdminDashboard = () => {
                     >
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
+                      <option value="Other">Other</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Specialty</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Specialization</label>
                     <input
                       type="text"
                       value={editingCounselor.specialty}
                       onChange={(e) => setEditingCounselor({...editingCounselor, specialty: e.target.value})}
                       className="w-full p-2 border border-red-300 rounded-lg"
+                      placeholder="e.g., Anxiety & Stress"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Qualifications</label>
+                    <input
+                      type="text"
+                      value={editingCounselor.qualifications}
+                      onChange={(e) => setEditingCounselor({...editingCounselor, qualifications: e.target.value})}
+                      className="w-full p-2 border border-red-300 rounded-lg"
+                      placeholder="e.g., PhD in Psychology"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Experience</label>
+                    <input
+                      type="text"
+                      value={editingCounselor.experience}
+                      onChange={(e) => setEditingCounselor({...editingCounselor, experience: e.target.value})}
+                      className="w-full p-2 border border-red-300 rounded-lg"
+                      placeholder="e.g., 5 years clinical experience"
                     />
                   </div>
                 </>
