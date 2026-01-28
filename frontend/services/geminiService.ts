@@ -1,5 +1,6 @@
 const GEMINI_API_KEY = 'AIzaSyCCzLwpd78OC79c9SVRDbqNNj-DCDeLJvs';
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent';
+const MODEL = 'gemini-2.5-flash';
+const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1/models/${MODEL}:generateContent`;
 
 const SYSTEM_PROMPT = `You are "CareCompanion", a supportive, non-clinical chatbot inside a Mental Healthcare Appointment System.
 
@@ -44,44 +45,42 @@ export interface Message {
   timestamp: Date;
 }
 
-export const sendMessageToGemini = async (userMessage: string, conversationHistory: Message[]): Promise<string> => {
-  try {
-    const contents = [
-      {
-        parts: [{ text: SYSTEM_PROMPT }]
+export const sendMessageToGemini = async (
+  userMessage: string,
+  conversationHistory: Message[]
+): Promise<string> => {
+  const contents = [
+    ...conversationHistory.map((msg) => ({
+      role: msg.role === "assistant" ? "model" : "user",
+      parts: [{ text: msg.content }],
+    })),
+    {
+      role: "user",
+      parts: [{ text: userMessage }],
+    },
+  ];
+
+  const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      systemInstruction: {
+        parts: [{ text: SYSTEM_PROMPT }],
       },
-      ...conversationHistory.map(msg => ({
-        parts: [{ text: msg.content }],
-        role: msg.role === 'assistant' ? 'model' : 'user'
-      })),
-      {
-        parts: [{ text: userMessage }],
-        role: 'user'
-      }
-    ];
-
-    const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+      contents,
+      generationConfig: {
+        temperature: 0.7,
+        maxOutputTokens: 500,
       },
-      body: JSON.stringify({
-        contents,
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 500,
-        }
-      })
-    });
+    }),
+  });
 
-    if (!response.ok) {
-      throw new Error(`Gemini API error: ${response.status}`);
-    }
+  const data = await response.json();
 
-    const data = await response.json();
-    return data.candidates[0].content.parts[0].text;
-  } catch (error) {
-    console.error('Error calling Gemini API:', error);
-    throw error;
+  if (!response.ok) {
+    console.error("Gemini error details:", data);
+    throw new Error(data?.error?.message || `Gemini API error: ${response.status}`);
   }
+
+  return data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "No response text returned.";
 };
