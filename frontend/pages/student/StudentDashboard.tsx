@@ -102,35 +102,42 @@ const StudentDashboard = () => {
   // Listen for storage changes to sync appointments across tabs/components
   useEffect(() => {
     const handleStorageChange = () => {
-      const storedAppointments = localStorage.getItem('appointments');
-      if (storedAppointments) {
-        setAppointments(JSON.parse(storedAppointments));
+      if (user?.username) {
+        const appointmentKey = `appointments_${user.username}`;
+        const storedAppointments = localStorage.getItem(appointmentKey);
+        if (storedAppointments) {
+          setAppointments(JSON.parse(storedAppointments));
+        }
       }
     };
 
     window.addEventListener('storage', handleStorageChange);
     
     // Initialize appointments based on user type
-    const storedAppointments = localStorage.getItem('appointments');
-    if (isLegacyUser) {
-      // For student1, use static data if no stored appointments exist
-      if (storedAppointments) {
-        setAppointments(JSON.parse(storedAppointments));
+    if (user?.username) {
+      const appointmentKey = `appointments_${user.username}`;
+      const storedAppointments = localStorage.getItem(appointmentKey);
+      
+      if (isLegacyUser) {
+        // For student1, use static data if no stored appointments exist
+        if (storedAppointments) {
+          setAppointments(JSON.parse(storedAppointments));
+        } else {
+          setAppointments(staticAppointments);
+          localStorage.setItem(appointmentKey, JSON.stringify(staticAppointments));
+        }
       } else {
-        setAppointments(staticAppointments);
-        localStorage.setItem('appointments', JSON.stringify(staticAppointments));
-      }
-    } else {
-      // For new users, start with empty or only their own appointments
-      if (storedAppointments) {
-        const allAppointments = JSON.parse(storedAppointments);
-        // Filter appointments for this specific user if needed
-        setAppointments(allAppointments);
+        // For new users, start with empty appointments
+        if (storedAppointments) {
+          setAppointments(JSON.parse(storedAppointments));
+        } else {
+          setAppointments([]);
+        }
       }
     }
 
     return () => window.removeEventListener('storage', handleStorageChange);
-  }, [isLegacyUser]);
+  }, [isLegacyUser, user?.username]);
 
   const getUpcomingAppointment = () => {
     const today = new Date();

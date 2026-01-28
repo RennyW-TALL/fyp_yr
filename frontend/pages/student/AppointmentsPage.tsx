@@ -128,27 +128,34 @@ const AppointmentsPage = () => {
 
   // Load appointments from localStorage on mount
   useEffect(() => {
-    const storedAppointments = localStorage.getItem('appointments');
+    const appointmentKey = `appointments_${user?.username}`;
+    const storedAppointments = localStorage.getItem(appointmentKey);
+    
     if (isLegacyUser) {
       // For student1, use static data if no stored appointments exist
       if (storedAppointments) {
         setAppointments(JSON.parse(storedAppointments));
       } else {
         setAppointments(staticAppointments);
-        localStorage.setItem('appointments', JSON.stringify(staticAppointments));
+        localStorage.setItem(appointmentKey, JSON.stringify(staticAppointments));
       }
     } else {
-      // For new users, start with empty or only their own appointments
+      // For new users, start with empty appointments
       if (storedAppointments) {
         setAppointments(JSON.parse(storedAppointments));
+      } else {
+        setAppointments([]);
       }
     }
-  }, [isLegacyUser]);
+  }, [isLegacyUser, user?.username]);
 
   // Save appointments to localStorage whenever appointments change
   useEffect(() => {
-    localStorage.setItem('appointments', JSON.stringify(appointments));
-  }, [appointments]);
+    if (user?.username && appointments.length >= 0) {
+      const appointmentKey = `appointments_${user.username}`;
+      localStorage.setItem(appointmentKey, JSON.stringify(appointments));
+    }
+  }, [appointments, user?.username]);
 
   // Get available sessions (excluding booked ones)
   const getAvailableSessions = (therapist: string) => {

@@ -68,17 +68,20 @@ const StudentHeader = () => {
             <span className="font-medium">PHQ-9</span>
           </Link>
 
-          <Link
-            to="/student/chat"
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
-              location.pathname === '/student/chat'
-                ? 'bg-indigo-100 text-indigo-700'
-                : 'text-slate-600 hover:text-indigo-600 hover:bg-slate-50'
-            }`}
-          >
-            <Brain className="h-4 w-4" />
-            <span className="font-medium">AI Chat</span>
-          </Link>
+          {/* AI Chat only for student1 */}
+          {user?.username === 'student1' && (
+            <Link
+              to="/student/chat"
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+                location.pathname === '/student/chat'
+                  ? 'bg-indigo-100 text-indigo-700'
+                  : 'text-slate-600 hover:text-indigo-600 hover:bg-slate-50'
+              }`}
+            >
+              <Brain className="h-4 w-4" />
+              <span className="font-medium">AI Chat</span>
+            </Link>
+          )}
 
           {/* User Profile Dropdown */}
           <div className="relative">
