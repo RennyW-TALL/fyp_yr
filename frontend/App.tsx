@@ -9,6 +9,7 @@ import Landing from './pages/Landing';
 import StudentDashboard from './pages/student/StudentDashboard';
 import PHQ9Assessment from './pages/student/PHQ9Assessment';
 import AppointmentsPage from './pages/student/AppointmentsPage';
+import AIChatPage from './pages/student/AIChatPage';
 
 import AdminDashboard from './pages/admin/AdminDashboard';
 import UserManagement from './pages/admin/UserManagement';
@@ -42,7 +43,7 @@ const AppRoutes = () => {
                             <Route path="dashboard" element={<StudentDashboard />} />
                             <Route path="phq9" element={<PHQ9Assessment />} />
                             <Route path="appointments" element={<AppointmentsPage />} />
-
+                            <Route path="chat" element={<AIChatPage />} />
                         </Routes>
                     </Layout>
                 </ProtectedRoute>

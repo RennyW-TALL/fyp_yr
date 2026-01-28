@@ -6,16 +6,24 @@ import { useAuth } from '../context/AuthContext';
 const StudentHeader = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
 
-  const studentProfile = {
+  // Static profile for student1, dynamic profile for new users
+  const studentProfile = user?.username === 'student1' ? {
     name: 'Wong Yi Ren',
     username: 'student1',
     gender: 'Male',
     age: 21,
     course: 'Computer Science',
     year: 3
+  } : {
+    name: user?.fullName || user?.username || 'Student',
+    username: user?.username || '',
+    gender: user?.gender || 'Not specified',
+    age: user?.age || 'Not specified',
+    course: user?.course || 'Not specified',
+    year: user?.yearOfStudy || 'Not specified'
   };
 
   const handleLogout = () => {
@@ -58,6 +66,18 @@ const StudentHeader = () => {
           >
             <Brain className="h-4 w-4" />
             <span className="font-medium">PHQ-9</span>
+          </Link>
+
+          <Link
+            to="/student/chat"
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
+              location.pathname === '/student/chat'
+                ? 'bg-indigo-100 text-indigo-700'
+                : 'text-slate-600 hover:text-indigo-600 hover:bg-slate-50'
+            }`}
+          >
+            <Brain className="h-4 w-4" />
+            <span className="font-medium">AI Chat</span>
           </Link>
 
           {/* User Profile Dropdown */}

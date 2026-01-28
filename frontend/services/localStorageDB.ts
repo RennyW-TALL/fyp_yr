@@ -20,6 +20,11 @@ export interface User {
   password: string;
   role: 'student' | 'counselor' | 'admin';
   fullName: string;
+  tpNumber?: string;
+  gender?: string;
+  age?: number;
+  course?: string;
+  yearOfStudy?: number;
   createdAt: Date;
 }
 

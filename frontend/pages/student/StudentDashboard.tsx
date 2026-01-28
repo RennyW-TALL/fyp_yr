@@ -30,8 +30,11 @@ interface Therapist {
 const StudentDashboard = () => {
   const { user } = useAuth();
   
-  // This should ideally be shared state or context, but for now we'll simulate it
-  const [appointments, setAppointments] = useState<Appointment[]>([
+  // Check if this is student1 (legacy user with static data) or a new registered user
+  const isLegacyUser = user?.username === 'student1';
+  
+  // Static appointments for student1 only
+  const staticAppointments = [
     {
       appointment_id: 1,
       therapist_name: 'Dr. John Smith',
@@ -92,7 +95,9 @@ const StudentDashboard = () => {
       session_note: 'The patient showed great engagement during the session and discussed their coping mechanisms.',
       created_at: '2025-02-15 10:30:00'
     }
-  ]);
+  ];
+  
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
 
   // Listen for storage changes to sync appointments across tabs/components
   useEffect(() => {
@@ -105,14 +110,27 @@ const StudentDashboard = () => {
 
     window.addEventListener('storage', handleStorageChange);
     
-    // Check for stored appointments on mount
+    // Initialize appointments based on user type
     const storedAppointments = localStorage.getItem('appointments');
-    if (storedAppointments) {
-      setAppointments(JSON.parse(storedAppointments));
+    if (isLegacyUser) {
+      // For student1, use static data if no stored appointments exist
+      if (storedAppointments) {
+        setAppointments(JSON.parse(storedAppointments));
+      } else {
+        setAppointments(staticAppointments);
+        localStorage.setItem('appointments', JSON.stringify(staticAppointments));
+      }
+    } else {
+      // For new users, start with empty or only their own appointments
+      if (storedAppointments) {
+        const allAppointments = JSON.parse(storedAppointments);
+        // Filter appointments for this specific user if needed
+        setAppointments(allAppointments);
+      }
     }
 
     return () => window.removeEventListener('storage', handleStorageChange);
-  }, []);
+  }, [isLegacyUser]);
 
   const getUpcomingAppointment = () => {
     const today = new Date();
@@ -153,7 +171,7 @@ const StudentDashboard = () => {
       <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50">
         <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-green-900">Welcome back, {user?.name.split(' ')[0]} 👋</h1>
+          <h1 className="text-2xl font-bold text-green-900">Welcome back, {user?.fullName?.split(' ')[0] || user?.username} 👋</h1>
           <p className="text-green-700">How are you feeling today?</p>
         </div>
 
