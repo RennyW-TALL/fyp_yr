@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, UserPlus, AlertTriangle, Shield, CheckCircle, LogOut, Edit, Trash2, Brain, User, Plus, Search } from 'lucide-react';
+import { useDatabase } from '../../hooks/useDatabase';
 import { MOCK_USERS } from '../../constants';
 import { UserStatus } from '../../types';
 
@@ -29,6 +30,8 @@ interface PendingCounselor {
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const { students, therapists, pendingTherapists, approveTherapist, rejectTherapist } = useDatabase('admin01');
+  
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
@@ -43,26 +46,6 @@ const AdminDashboard = () => {
   const [pendingSearchQuery, setPendingSearchQuery] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [activeView, setActiveView] = useState<'dashboard' | 'students' | 'counselors' | 'pending'>('dashboard');
-  
-  const [students, setStudents] = useState<Student[]>([
-    { id: 1, name: 'Wong Yi Ren', gender: 'Male', age: 21, course: 'Computer Science', year: 3 },
-    { id: 2, name: 'John Doe', gender: 'Male', age: 22, course: 'Software Engineering', year: 3 },
-    { id: 3, name: 'Sarah Lee', gender: 'Female', age: 20, course: 'Cyber Security', year: 2 },
-    { id: 4, name: 'Tester 123', gender: 'Male', age: 21, course: 'SE, CYB', year: 3 },
-    { id: 5, name: 'Tester 246', gender: 'Female', age: 21, course: 'SE, CYB', year: 2 }
-  ]);
-  
-  const [counselors, setCounselors] = useState<Counselor[]>([
-    { id: 1, name: 'Dr John Smith', gender: 'Male', specialty: 'Anxiety & Stress' },
-    { id: 2, name: 'Dr Mei Lee', gender: 'Female', specialty: 'Academic Pressure' },
-    { id: 3, name: 'Dr Wilson House', gender: 'Male', specialty: 'Anxiety and Depression' }
-  ]);
-
-  const [pendingCounselors, setPendingCounselors] = useState<PendingCounselor[]>([
-    { id: 1, name: 'Dr Ali Baba', gender: 'Male', specialty: 'demo purposes' },
-    { id: 2, name: 'Dr Alice Kok', gender: 'Female', specialty: 'Testing' },
-    { id: 3, name: 'Dr Hannah Yeoh', gender: 'Female', specialty: 'psychology and hypnosis' }
-  ]);
 
   const totalUsers = MOCK_USERS.length;
   const suspendedUsers = MOCK_USERS.filter(u => u.status === UserStatus.SUSPENDED).length;
@@ -143,39 +126,51 @@ const AdminDashboard = () => {
     setTimeout(() => setSuccessMessage(''), 3000);
   };
 
-  const filteredStudents = students.filter(s => s.name.toLowerCase().includes(searchQuery.toLowerCase()));
-  const filteredCounselors = counselors.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()));
-  const filteredPendingCounselors = pendingCounselors.filter(c => c.name.toLowerCase().includes(pendingSearchQuery.toLowerCase()));
+  const filteredStudents = students.filter(s => s.fullName.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredCounselors = therapists.filter(c => c.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredPendingCounselors = pendingTherapists.filter(c => c.name.toLowerCase().includes(pendingSearchQuery.toLowerCase()));
 
-  const handleApproveCounselor = (id: number) => {
-    const counselor = pendingCounselors.find(c => c.id === id);
-    if (counselor) {
-      setCounselors(prev => [...prev, { ...counselor, id: Math.max(...prev.map(c => c.id)) + 1 }]);
-      setPendingCounselors(prev => prev.filter(c => c.id !== id));
+  const handleApproveCounselor = async (id: number) => {
+    try {
+      await approveTherapist(id);
       showSuccessMessage('Counselor approved and added to system');
+    } catch (error) {
+      console.error('Error approving counselor:', error);
     }
   };
 
-  const handleRejectCounselor = (id: number) => {
-    setPendingCounselors(prev => prev.filter(c => c.id !== id));
-    showSuccessMessage('Counselor registration rejected');
+  const handleRejectCounselor = async (id: number) => {
+    try {
+      await rejectTherapist(id);
+      showSuccessMessage('Counselor registration rejected');
+    } catch (error) {
+      console.error('Error rejecting counselor:', error);
+    }
   };
 
-  const handleBulkApproveCounselors = () => {
-    const counselorsToApprove = pendingCounselors.filter(c => selectedPendingCounselors.includes(c.id));
-    counselorsToApprove.forEach(counselor => {
-      setCounselors(prev => [...prev, { ...counselor, id: Math.max(...prev.map(c => c.id)) + 1 }]);
-    });
-    setPendingCounselors(prev => prev.filter(c => !selectedPendingCounselors.includes(c.id)));
-    setSelectedPendingCounselors([]);
-    showSuccessMessage(`${counselorsToApprove.length} counselor(s) approved`);
+  const handleBulkApproveCounselors = async () => {
+    try {
+      for (const id of selectedPendingCounselors) {
+        await approveTherapist(id);
+      }
+      setSelectedPendingCounselors([]);
+      showSuccessMessage(`${selectedPendingCounselors.length} counselor(s) approved`);
+    } catch (error) {
+      console.error('Error bulk approving counselors:', error);
+    }
   };
 
-  const handleBulkRejectCounselors = () => {
-    setPendingCounselors(prev => prev.filter(c => !selectedPendingCounselors.includes(c.id)));
-    const count = selectedPendingCounselors.length;
-    setSelectedPendingCounselors([]);
-    showSuccessMessage(`${count} counselor(s) rejected`);
+  const handleBulkRejectCounselors = async () => {
+    try {
+      const count = selectedPendingCounselors.length;
+      for (const id of selectedPendingCounselors) {
+        await rejectTherapist(id);
+      }
+      setSelectedPendingCounselors([]);
+      showSuccessMessage(`${count} counselor(s) rejected`);
+    } catch (error) {
+      console.error('Error bulk rejecting counselors:', error);
+    }
   };
 
   return (
@@ -348,10 +343,8 @@ const AdminDashboard = () => {
                       />
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-orange-800 uppercase">Name</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-orange-800 uppercase">Gender</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-orange-800 uppercase">Age</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-orange-800 uppercase">Course</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-orange-800 uppercase">Year of Study</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-orange-800 uppercase">Email</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-orange-800 uppercase">Student ID</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-orange-800 uppercase">Edit</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-orange-800 uppercase">Delete</th>
                   </tr>
@@ -373,11 +366,9 @@ const AdminDashboard = () => {
                           className="rounded border-orange-300"
                         />
                       </td>
-                      <td className="px-6 py-4 text-sm font-medium text-orange-900">{student.name}</td>
-                      <td className="px-6 py-4 text-sm text-orange-700">{student.gender}</td>
-                      <td className="px-6 py-4 text-sm text-orange-700">{student.age}</td>
-                      <td className="px-6 py-4 text-sm text-orange-700">{student.course}</td>
-                      <td className="px-6 py-4 text-sm text-orange-700">Year {student.year}</td>
+                      <td className="px-6 py-4 text-sm font-medium text-orange-900">{student.fullName}</td>
+                      <td className="px-6 py-4 text-sm text-orange-700">{student.email}</td>
+                      <td className="px-6 py-4 text-sm text-orange-700">{student.studentId}</td>
                       <td className="px-6 py-4">
                         <button
                           onClick={() => handleEditStudent(student)}
@@ -493,7 +484,7 @@ const AdminDashboard = () => {
                       </td>
                       <td className="px-6 py-4 text-sm font-medium text-orange-900">{counselor.name}</td>
                       <td className="px-6 py-4 text-sm text-orange-700">{counselor.gender}</td>
-                      <td className="px-6 py-4 text-sm text-orange-700">{counselor.specialty}</td>
+                      <td className="px-6 py-4 text-sm text-orange-700">{counselor.specialization}</td>
                       <td className="px-6 py-4">
                         <button
                           onClick={() => handleEditCounselor(counselor)}
@@ -604,7 +595,7 @@ const AdminDashboard = () => {
                       </td>
                       <td className="px-6 py-4 text-sm font-medium text-orange-900">{counselor.name}</td>
                       <td className="px-6 py-4 text-sm text-orange-700">{counselor.gender}</td>
-                      <td className="px-6 py-4 text-sm text-orange-700">{counselor.specialty}</td>
+                      <td className="px-6 py-4 text-sm text-orange-700">{counselor.specialization}</td>
                       <td className="px-6 py-4">
                         <div className="flex gap-2">
                           <button
