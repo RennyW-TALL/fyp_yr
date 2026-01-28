@@ -1,9 +1,4 @@
-const getGeminiApiKey = async (): Promise<string> => {
-  const response = await fetch('http://13.251.172.57/api/config/gemini-key');
-  if (!response.ok) throw new Error('Failed to fetch API key');
-  const data = await response.json();
-  return data.apiKey;
-};
+const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const MODEL = 'gemini-2.5-flash';
 const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1/models/${MODEL}:generateContent`;
 
