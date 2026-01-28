@@ -38,7 +38,7 @@ const StudentDashboard = () => {
     {
       appointment_id: 1,
       therapist_name: 'Dr. John Smith',
-      appointment_date: '2025-03-10',
+      appointment_date: '2024-03-10',
       start_time: '10:00:00',
       end_time: '11:00:00',
       status: 'Completed',
@@ -66,19 +66,19 @@ const StudentDashboard = () => {
     {
       appointment_id: 4,
       therapist_name: 'Dr. John Smith',
-      appointment_date: '2026-06-10',
+      appointment_date: '2025-06-10',
       start_time: '09:00:00',
       end_time: '10:00:00',
       status: 'Cancelled',
       cancel_reason: 'User no-show',
-      cancelled_at: '2026-06-10 08:30:00',
+      cancelled_at: '2025-06-10 08:30:00',
       session_note: 'The appointment was cancelled as the patient did not show up.',
       created_at: '2025-01-20 13:00:00'
     },
     {
       appointment_id: 5,
       therapist_name: 'Dr. Mei Lee',
-      appointment_date: '2026-07-10',
+      appointment_date: '2024-07-10',
       start_time: '16:00:00',
       end_time: '17:00:00',
       status: 'Completed',
@@ -88,7 +88,7 @@ const StudentDashboard = () => {
     {
       appointment_id: 6,
       therapist_name: 'Dr. Wilson House',
-      appointment_date: '2026-08-05',
+      appointment_date: '2024-08-05',
       start_time: '10:00:00',
       end_time: '11:00:00',
       status: 'Completed',
@@ -141,9 +141,11 @@ const StudentDashboard = () => {
 
   const getUpcomingAppointment = () => {
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
     return appointments.find(apt => {
       const appointmentDate = new Date(apt.appointment_date);
-      return appointmentDate > today && (apt.status === 'Confirmed' || apt.status === 'Pending');
+      appointmentDate.setHours(0, 0, 0, 0);
+      return appointmentDate >= today && (apt.status === 'Confirmed' || apt.status === 'Pending');
     });
   };
 
