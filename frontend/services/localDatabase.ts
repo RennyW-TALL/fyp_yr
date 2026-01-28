@@ -50,7 +50,12 @@ export interface Student {
   username: string;
   fullName: string;
   email: string;
-  studentId: string;
+  tpNumber: string;
+  gender: string;
+  age: number;
+  course: string;
+  yearOfStudy: number;
+  studentId: string; // Keep as unique key but don't display
   created_at: string;
 }
 
@@ -104,6 +109,11 @@ class LocalDatabase {
           username: 'student1',
           fullName: 'John Doe',
           email: 'student1@university.edu',
+          tpNumber: '032244',
+          gender: 'male',
+          age: 21,
+          course: 'Computer Science',
+          yearOfStudy: 3,
           studentId: 'STU001',
           created_at: '2024-01-01T00:00:00.000Z'
         },
@@ -111,6 +121,11 @@ class LocalDatabase {
           username: 'wongyr',
           fullName: 'Wong Yi Ren',
           email: 'wongyr@university.edu',
+          tpNumber: '032245',
+          gender: 'male',
+          age: 21,
+          course: 'Computer Science',
+          yearOfStudy: 3,
           studentId: 'STU002',
           created_at: '2024-01-02T00:00:00.000Z'
         },
@@ -118,6 +133,11 @@ class LocalDatabase {
           username: 'johndoe2',
           fullName: 'John Doe',
           email: 'johndoe2@university.edu',
+          tpNumber: '032246',
+          gender: 'male',
+          age: 22,
+          course: 'Software Engineering',
+          yearOfStudy: 3,
           studentId: 'STU003',
           created_at: '2024-01-03T00:00:00.000Z'
         },
@@ -125,6 +145,11 @@ class LocalDatabase {
           username: 'sarahlee',
           fullName: 'Sarah Lee',
           email: 'sarahlee@university.edu',
+          tpNumber: '032247',
+          gender: 'female',
+          age: 20,
+          course: 'Cyber Security',
+          yearOfStudy: 2,
           studentId: 'STU004',
           created_at: '2024-01-04T00:00:00.000Z'
         },
@@ -132,6 +157,11 @@ class LocalDatabase {
           username: 'tester123',
           fullName: 'Tester 123',
           email: 'tester123@university.edu',
+          tpNumber: '032248',
+          gender: 'male',
+          age: 21,
+          course: 'SE, CYB',
+          yearOfStudy: 3,
           studentId: 'STU005',
           created_at: '2024-01-05T00:00:00.000Z'
         },
@@ -139,6 +169,11 @@ class LocalDatabase {
           username: 'tester246',
           fullName: 'Tester 246',
           email: 'tester246@university.edu',
+          tpNumber: '032249',
+          gender: 'female',
+          age: 21,
+          course: 'SE, CYB',
+          yearOfStudy: 2,
           studentId: 'STU006',
           created_at: '2024-01-06T00:00:00.000Z'
         }

@@ -8,6 +8,8 @@ import { UserStatus } from '../../types';
 interface Student {
   id: number;
   name: string;
+  email: string;
+  tpNumber: string;
   gender: string;
   age: number;
   course: string;
@@ -139,7 +141,12 @@ const AdminDashboard = () => {
         await addStudent({
           username: `student_${Date.now()}`,
           fullName: editingStudent.name,
-          email: `${editingStudent.name.toLowerCase().replace(' ', '')}@university.edu`,
+          email: editingStudent.email,
+          tpNumber: editingStudent.tpNumber,
+          gender: editingStudent.gender,
+          age: editingStudent.age,
+          course: editingStudent.course,
+          yearOfStudy: editingStudent.year,
           studentId: `STU${Date.now().toString().slice(-3)}`
         });
         showSuccessMessage('Student added successfully to database');
@@ -327,7 +334,7 @@ const AdminDashboard = () => {
                 <button
                   onClick={() => {
                     setAddingType('student');
-                    setEditingStudent({ id: 0, name: '', gender: 'Male', age: 18, course: '', year: 1 });
+                    setEditingStudent({ id: 0, name: '', email: '', tpNumber: '', gender: 'Male', age: 18, course: '', year: 1 });
                     setShowAddModal(true);
                   }}
                   className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors"
@@ -386,7 +393,7 @@ const AdminDashboard = () => {
                     </th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-orange-800 uppercase">Name</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-orange-800 uppercase">Email</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-orange-800 uppercase">Student ID</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-orange-800 uppercase">TP Number</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-orange-800 uppercase">Edit</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-orange-800 uppercase">Delete</th>
                   </tr>
@@ -410,7 +417,7 @@ const AdminDashboard = () => {
                       </td>
                       <td className="px-6 py-4 text-sm font-medium text-orange-900">{student.fullName}</td>
                       <td className="px-6 py-4 text-sm text-orange-700">{student.email}</td>
-                      <td className="px-6 py-4 text-sm text-orange-700">{student.studentId}</td>
+                      <td className="px-6 py-4 text-sm text-orange-700">{student.tpNumber}</td>
                       <td className="px-6 py-4">
                         <button
                           onClick={() => handleEditStudent(student)}
@@ -677,12 +684,31 @@ const AdminDashboard = () => {
               {addingType === 'student' && editingStudent && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Name</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
                     <input
                       type="text"
                       value={editingStudent.name}
                       onChange={(e) => setEditingStudent({...editingStudent, name: e.target.value})}
                       className="w-full p-2 border border-red-300 rounded-lg"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                    <input
+                      type="email"
+                      value={editingStudent.email}
+                      onChange={(e) => setEditingStudent({...editingStudent, email: e.target.value})}
+                      className="w-full p-2 border border-red-300 rounded-lg"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">TP Number</label>
+                    <input
+                      type="text"
+                      value={editingStudent.tpNumber}
+                      onChange={(e) => setEditingStudent({...editingStudent, tpNumber: e.target.value})}
+                      className="w-full p-2 border border-red-300 rounded-lg"
+                      placeholder="e.g., 032244"
                     />
                   </div>
                   <div>
@@ -694,6 +720,7 @@ const AdminDashboard = () => {
                     >
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
+                      <option value="Other">Other</option>
                     </select>
                   </div>
                   <div>
