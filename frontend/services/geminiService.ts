@@ -89,8 +89,7 @@ export const sendMessageToGemini = async (
     },
   ];
 
-  const apiKey = await getGeminiApiKey();
-  const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
+  const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
