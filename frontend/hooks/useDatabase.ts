@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
-import localDatabase, { Appointment, Therapist, TherapistAvailability } from '../services/localDatabase';
+import localDatabase, { Appointment, Therapist, TherapistAvailability, Student, PendingTherapist } from '../services/localDatabase';
 
 export const useDatabase = (username?: string) => {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [therapists, setTherapists] = useState<Therapist[]>([]);
   const [therapistAppointments, setTherapistAppointments] = useState<Appointment[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
+  const [pendingTherapists, setPendingTherapists] = useState<PendingTherapist[]>([]);
   const [loading, setLoading] = useState(false);
 
   // Load initial data
@@ -13,6 +15,8 @@ export const useDatabase = (username?: string) => {
       setAppointments(localDatabase.getAppointments(username));
     }
     setTherapists(localDatabase.getTherapists());
+    setStudents(localDatabase.getStudents());
+    setPendingTherapists(localDatabase.getPendingTherapists());
   }, [username]);
 
   // Listen for storage changes for real-time sync
@@ -22,6 +26,8 @@ export const useDatabase = (username?: string) => {
         setAppointments(localDatabase.getAppointments(username));
       }
       setTherapists(localDatabase.getTherapists());
+      setStudents(localDatabase.getStudents());
+      setPendingTherapists(localDatabase.getPendingTherapists());
       
       // Update therapist appointments for all therapists
       if (e.key === 'therapist_appointments_sync' || e.key === 'appointments_sync') {
@@ -160,11 +166,115 @@ export const useDatabase = (username?: string) => {
     }
   }, []);
 
+  // Admin operations
+  const addStudent = useCallback(async (student: Omit<Student, 'created_at'>) => {
+    setLoading(true);
+    try {
+      const newStudent = localDatabase.addStudent(student);
+      setStudents(localDatabase.getStudents());
+      return newStudent;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const addPendingTherapist = useCallback(async (therapist: Omit<PendingTherapist, 'id' | 'status' | 'created_at'>) => {
+    setLoading(true);
+    try {
+      const newPendingTherapist = localDatabase.addPendingTherapist(therapist);
+      setPendingTherapists(localDatabase.getPendingTherapists());
+      return newPendingTherapist;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const approveTherapist = useCallback(async (pendingId: number) => {
+    setLoading(true);
+    try {
+      const success = localDatabase.approveTherapist(pendingId);
+      if (success) {
+        setTherapists(localDatabase.getTherapists());
+        setPendingTherapists(localDatabase.getPendingTherapists());
+      }
+      return success;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const rejectTherapist = useCallback(async (pendingId: number) => {
+    setLoading(true);
+    try {
+      const success = localDatabase.rejectTherapist(pendingId);
+      if (success) {
+        setPendingTherapists(localDatabase.getPendingTherapists());
+      }
+      return success;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const updateStudent = useCallback(async (username: string, updates: Partial<Student>) => {
+    setLoading(true);
+    try {
+      const success = localDatabase.updateStudent(username, updates);
+      if (success) {
+        setStudents(localDatabase.getStudents());
+      }
+      return success;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const deleteStudent = useCallback(async (username: string) => {
+    setLoading(true);
+    try {
+      const success = localDatabase.deleteStudent(username);
+      if (success) {
+        setStudents(localDatabase.getStudents());
+      }
+      return success;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const updateTherapist = useCallback(async (id: number, updates: Partial<Therapist>) => {
+    setLoading(true);
+    try {
+      const success = localDatabase.updateTherapist(id, updates);
+      if (success) {
+        setTherapists(localDatabase.getTherapists());
+      }
+      return success;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const deleteTherapist = useCallback(async (id: number) => {
+    setLoading(true);
+    try {
+      const success = localDatabase.deleteTherapist(id);
+      if (success) {
+        setTherapists(localDatabase.getTherapists());
+      }
+      return success;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   return {
     // Data
     appointments,
     therapists,
     therapistAppointments,
+    students,
+    pendingTherapists,
     loading,
     
     // Operations
@@ -177,6 +287,16 @@ export const useDatabase = (username?: string) => {
     getAppointmentsByTherapist,
     updateAppointmentStatus,
     setTherapistAvailability,
+    
+    // Admin Operations
+    addStudent,
+    addPendingTherapist,
+    approveTherapist,
+    rejectTherapist,
+    updateStudent,
+    deleteStudent,
+    updateTherapist,
+    deleteTherapist,
     
     // Availability
     getAvailableSlots,

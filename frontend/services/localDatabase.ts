@@ -33,6 +33,27 @@ export interface Therapist {
   profileImage: string;
 }
 
+export interface PendingTherapist {
+  id: number;
+  name: string;
+  email: string;
+  gender: string;
+  specialization: string;
+  qualifications: string;
+  experience: string;
+  profileImage: string;
+  status: 'pending';
+  created_at: string;
+}
+
+export interface Student {
+  username: string;
+  fullName: string;
+  email: string;
+  studentId: string;
+  created_at: string;
+}
+
 class LocalDatabase {
   private static instance: LocalDatabase;
   
@@ -74,6 +95,25 @@ class LocalDatabase {
         }
       ];
       localStorage.setItem('therapists', JSON.stringify(therapists));
+    }
+
+    // Initialize students for admin01
+    if (!localStorage.getItem('students')) {
+      const students: Student[] = [
+        {
+          username: 'student1',
+          fullName: 'John Doe',
+          email: 'student1@university.edu',
+          studentId: 'STU001',
+          created_at: '2024-01-01T00:00:00.000Z'
+        }
+      ];
+      localStorage.setItem('students', JSON.stringify(students));
+    }
+
+    // Initialize pending therapists (empty by default)
+    if (!localStorage.getItem('pending_therapists')) {
+      localStorage.setItem('pending_therapists', JSON.stringify([]));
     }
 
     // Initialize availability for next 30 days
@@ -364,6 +404,138 @@ class LocalDatabase {
     }
     
     localStorage.setItem('therapist_availability', JSON.stringify(availability));
+    this.notifyChange();
+    return true;
+  }
+
+  // Admin management methods
+  getStudents(): Student[] {
+    return JSON.parse(localStorage.getItem('students') || '[]');
+  }
+
+  addStudent(student: Omit<Student, 'created_at'>): Student {
+    const students = this.getStudents();
+    const newStudent: Student = {
+      ...student,
+      created_at: new Date().toISOString()
+    };
+    students.push(newStudent);
+    localStorage.setItem('students', JSON.stringify(students));
+    this.notifyChange();
+    return newStudent;
+  }
+
+  getPendingTherapists(): PendingTherapist[] {
+    return JSON.parse(localStorage.getItem('pending_therapists') || '[]');
+  }
+
+  addPendingTherapist(therapist: Omit<PendingTherapist, 'id' | 'status' | 'created_at'>): PendingTherapist {
+    const pendingTherapists = this.getPendingTherapists();
+    const newId = Math.max(0, ...pendingTherapists.map(t => t.id)) + 1;
+    
+    const newPendingTherapist: PendingTherapist = {
+      ...therapist,
+      id: newId,
+      status: 'pending',
+      created_at: new Date().toISOString()
+    };
+    
+    pendingTherapists.push(newPendingTherapist);
+    localStorage.setItem('pending_therapists', JSON.stringify(pendingTherapists));
+    this.notifyChange();
+    return newPendingTherapist;
+  }
+
+  approveTherapist(pendingId: number): boolean {
+    const pendingTherapists = this.getPendingTherapists();
+    const therapists = this.getTherapists();
+    
+    const pendingIndex = pendingTherapists.findIndex(t => t.id === pendingId);
+    if (pendingIndex === -1) return false;
+    
+    const pendingTherapist = pendingTherapists[pendingIndex];
+    const newTherapistId = Math.max(0, ...therapists.map(t => t.id)) + 1;
+    
+    // Add to approved therapists
+    const newTherapist: Therapist = {
+      id: newTherapistId,
+      name: pendingTherapist.name,
+      gender: pendingTherapist.gender,
+      specialization: pendingTherapist.specialization,
+      profileImage: pendingTherapist.profileImage
+    };
+    
+    therapists.push(newTherapist);
+    localStorage.setItem('therapists', JSON.stringify(therapists));
+    
+    // Remove from pending
+    pendingTherapists.splice(pendingIndex, 1);
+    localStorage.setItem('pending_therapists', JSON.stringify(pendingTherapists));
+    
+    this.notifyChange();
+    return true;
+  }
+
+  rejectTherapist(pendingId: number): boolean {
+    const pendingTherapists = this.getPendingTherapists();
+    const index = pendingTherapists.findIndex(t => t.id === pendingId);
+    
+    if (index === -1) return false;
+    
+    pendingTherapists.splice(index, 1);
+    localStorage.setItem('pending_therapists', JSON.stringify(pendingTherapists));
+    this.notifyChange();
+    return true;
+  }
+
+  // Edit/Delete operations
+  updateStudent(username: string, updates: Partial<Student>): boolean {
+    const students = this.getStudents();
+    const index = students.findIndex(s => s.username === username);
+    
+    if (index === -1) return false;
+    
+    students[index] = { ...students[index], ...updates };
+    localStorage.setItem('students', JSON.stringify(students));
+    this.notifyChange();
+    return true;
+  }
+
+  deleteStudent(username: string): boolean {
+    const students = this.getStudents();
+    const index = students.findIndex(s => s.username === username);
+    
+    if (index === -1) return false;
+    
+    students.splice(index, 1);
+    localStorage.setItem('students', JSON.stringify(students));
+    
+    // Also remove student's appointments
+    localStorage.removeItem(`appointments_${username}`);
+    this.notifyChange();
+    return true;
+  }
+
+  updateTherapist(id: number, updates: Partial<Therapist>): boolean {
+    const therapists = this.getTherapists();
+    const index = therapists.findIndex(t => t.id === id);
+    
+    if (index === -1) return false;
+    
+    therapists[index] = { ...therapists[index], ...updates };
+    localStorage.setItem('therapists', JSON.stringify(therapists));
+    this.notifyChange();
+    return true;
+  }
+
+  deleteTherapist(id: number): boolean {
+    const therapists = this.getTherapists();
+    const index = therapists.findIndex(t => t.id === id);
+    
+    if (index === -1) return false;
+    
+    therapists.splice(index, 1);
+    localStorage.setItem('therapists', JSON.stringify(therapists));
     this.notifyChange();
     return true;
   }

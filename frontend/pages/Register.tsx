@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Brain, Eye, EyeOff, ArrowLeft } from 'lucide-react';
-import { localDB } from '../services/localStorageDB';
+import { useDatabase } from '../hooks/useDatabase';
 
 const Register = () => {
   const [userType, setUserType] = useState('student');
@@ -10,6 +10,7 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const navigate = useNavigate();
+  const { addStudent, addPendingTherapist } = useDatabase();
 
   const [formData, setFormData] = useState({
     username: '',
@@ -25,6 +26,8 @@ const Register = () => {
     year_of_study: '',
     // Therapist fields
     specialization: '',
+    qualifications: '',
+    experience: '',
     max_daily_sessions: '6'
   });
 
@@ -55,24 +58,32 @@ const Register = () => {
       if (userType === 'student') {
         const studentData = {
           username: formData.username,
-          email: formData.email,
-          password: formData.password,
-          role: 'student' as const,
-          tpNumber: formData.tp_number,
           fullName: formData.full_name,
-          gender: formData.gender,
-          age: parseInt(formData.age) || 18,
-          course: formData.course,
-          yearOfStudy: parseInt(formData.year_of_study) || 1
+          email: formData.email,
+          studentId: formData.tp_number
         };
 
-        localDB.registerStudent(studentData);
+        await addStudent(studentData);
         setMessage({ type: 'success', text: 'Registration successful! Redirecting to login...' });
         setTimeout(() => {
           navigate('/login');
         }, 2000);
       } else {
-        setMessage({ type: 'error', text: 'Counselor registration not implemented yet' });
+        const therapistData = {
+          name: formData.full_name,
+          email: formData.email,
+          gender: formData.gender,
+          specialization: formData.specialization,
+          qualifications: formData.qualifications,
+          experience: formData.experience,
+          profileImage: '/images/therapists/default.jpg'
+        };
+
+        await addPendingTherapist(therapistData);
+        setMessage({ type: 'success', text: 'Registration submitted! Your application is pending admin approval.' });
+        setTimeout(() => {
+          navigate('/login');
+        }, 3000);
       }
     } catch (error) {
       setMessage({ type: 'error', text: error instanceof Error ? error.message : 'Registration failed' });
@@ -384,9 +395,42 @@ const Register = () => {
                     id="specialization"
                     name="specialization"
                     type="text"
+                    required
                     className="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm"
                     placeholder="e.g., Anxiety & Stress"
                     value={formData.specialization}
+                    onChange={handleChange}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="qualifications" className="block text-sm font-medium text-slate-700">
+                    Qualifications
+                  </label>
+                  <input
+                    id="qualifications"
+                    name="qualifications"
+                    type="text"
+                    required
+                    className="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm"
+                    placeholder="e.g., PhD in Psychology"
+                    value={formData.qualifications}
+                    onChange={handleChange}
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="experience" className="block text-sm font-medium text-slate-700">
+                    Experience
+                  </label>
+                  <input
+                    id="experience"
+                    name="experience"
+                    type="text"
+                    required
+                    className="mt-1 block w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-brand-500 focus:border-brand-500 sm:text-sm"
+                    placeholder="e.g., 5 years clinical experience"
+                    value={formData.experience}
                     onChange={handleChange}
                   />
                 </div>
