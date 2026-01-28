@@ -7,6 +7,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
+  syncWithLocalStorage: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -35,6 +36,7 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
         if (isValid) {
             setUser(foundUser);
+            localStorage.setItem('user', JSON.stringify(foundUser));
             setIsLoading(false);
             return;
         }
@@ -49,8 +51,15 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
     localStorage.removeItem('user');
   };
 
+  const syncWithLocalStorage = () => {
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, logout, isLoading, syncWithLocalStorage }}>
       {children}
     </AuthContext.Provider>
   );

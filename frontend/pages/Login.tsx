@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Brain, Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { localDB } from '../services/localStorageDB';
+import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -12,6 +13,7 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const navigate = useNavigate();
+  const { syncWithLocalStorage } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -32,6 +34,7 @@ const Login = () => {
     if (dbUser) {
       setMessage({ type: 'success', text: `Login successful as ${dbUser.role.toUpperCase()}! Redirecting...` });
       localStorage.setItem('user', JSON.stringify(dbUser));
+      syncWithLocalStorage(); // Sync with AuthContext
       
       setTimeout(() => {
         if (dbUser.role === 'student') {
@@ -61,6 +64,7 @@ const Login = () => {
         };
         
         localStorage.setItem('user', JSON.stringify(userData));
+        syncWithLocalStorage(); // Sync with AuthContext
         
         setTimeout(() => {
           if (user.role === 'student') {
