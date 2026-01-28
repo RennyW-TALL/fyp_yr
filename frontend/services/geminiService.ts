@@ -1,6 +1,11 @@
-const GEMINI_API_KEY = 'AIzaSyCysJvcvu6kZRNkA5zTvwR7G5270OPp17s';
+const getGeminiApiKey = async (): Promise<string> => {
+  const response = await fetch('http://localhost:8000/api/config/gemini-key');
+  if (!response.ok) throw new Error('Failed to fetch API key');
+  const data = await response.json();
+  return data.apiKey;
+};
 const MODEL = 'gemini-2.5-flash';
-const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
+const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1/models/${MODEL}:generateContent`;
 
 const SYSTEM_PROMPT = `You are "CareCompanion", a supportive, non-clinical chatbot inside a Mental Healthcare Appointment System.
 
@@ -89,7 +94,8 @@ export const sendMessageToGemini = async (
     },
   ];
 
-  const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+  const apiKey = await getGeminiApiKey();
+  const response = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
