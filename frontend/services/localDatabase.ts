@@ -106,14 +106,87 @@ class LocalDatabase {
           email: 'student1@university.edu',
           studentId: 'STU001',
           created_at: '2024-01-01T00:00:00.000Z'
+        },
+        {
+          username: 'wongyr',
+          fullName: 'Wong Yi Ren',
+          email: 'wongyr@university.edu',
+          studentId: 'STU002',
+          created_at: '2024-01-02T00:00:00.000Z'
+        },
+        {
+          username: 'johndoe2',
+          fullName: 'John Doe',
+          email: 'johndoe2@university.edu',
+          studentId: 'STU003',
+          created_at: '2024-01-03T00:00:00.000Z'
+        },
+        {
+          username: 'sarahlee',
+          fullName: 'Sarah Lee',
+          email: 'sarahlee@university.edu',
+          studentId: 'STU004',
+          created_at: '2024-01-04T00:00:00.000Z'
+        },
+        {
+          username: 'tester123',
+          fullName: 'Tester 123',
+          email: 'tester123@university.edu',
+          studentId: 'STU005',
+          created_at: '2024-01-05T00:00:00.000Z'
+        },
+        {
+          username: 'tester246',
+          fullName: 'Tester 246',
+          email: 'tester246@university.edu',
+          studentId: 'STU006',
+          created_at: '2024-01-06T00:00:00.000Z'
         }
       ];
       localStorage.setItem('students', JSON.stringify(students));
     }
 
-    // Initialize pending therapists (empty by default)
+    // Initialize pending therapists with static data
     if (!localStorage.getItem('pending_therapists')) {
-      localStorage.setItem('pending_therapists', JSON.stringify([]));
+      const pendingTherapists: PendingTherapist[] = [
+        {
+          id: 1,
+          name: 'Dr Ali Baba',
+          email: 'alibaba@example.com',
+          gender: 'male',
+          specialization: 'demo purposes',
+          qualifications: 'PhD in Psychology',
+          experience: '5 years',
+          profileImage: '/images/therapists/default.jpg',
+          status: 'pending',
+          created_at: '2024-01-01T00:00:00.000Z'
+        },
+        {
+          id: 2,
+          name: 'Dr Alice Kok',
+          email: 'alicekok@example.com',
+          gender: 'female',
+          specialization: 'Testing',
+          qualifications: 'Masters in Clinical Psychology',
+          experience: '3 years',
+          profileImage: '/images/therapists/default.jpg',
+          status: 'pending',
+          created_at: '2024-01-02T00:00:00.000Z'
+        },
+        {
+          id: 3,
+          name: 'Dr Hannah Yeoh',
+          email: 'hannahyeoh@example.com',
+          gender: 'female',
+          specialization: 'psychology and hypnosis',
+          qualifications: 'PhD in Clinical Psychology',
+          experience: '8 years',
+          profileImage: '/images/therapists/default.jpg',
+          status: 'pending',
+          created_at: '2024-01-03T00:00:00.000Z'
+        }
+      ];
+      localStorage.setItem('pending_therapists', JSON.stringify(pendingTherapists));
     }
 
     // Initialize availability for next 30 days
