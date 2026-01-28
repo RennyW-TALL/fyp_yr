@@ -1,5 +1,5 @@
 import React, { PropsWithChildren } from 'react';
-import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Layout from './components/Layout';
 import FloatingChatbot from './components/FloatingChatbot';
@@ -18,6 +18,13 @@ import { Role } from './types';
 // Protected Route Component
 const ProtectedRoute = ({ children }: PropsWithChildren) => {
   return <>{children}</>;
+};
+
+const ChatbotWrapper = () => {
+  const location = useLocation();
+  const isStudentRoute = location.pathname.startsWith('/student');
+  
+  return isStudentRoute ? <FloatingChatbot /> : null;
 };
 
 const AppRoutes = () => {
@@ -77,7 +84,7 @@ const App = () => {
     <Router>
         <AuthProvider>
             <AppRoutes />
-            <FloatingChatbot />
+            <ChatbotWrapper />
         </AuthProvider>
     </Router>
   );
