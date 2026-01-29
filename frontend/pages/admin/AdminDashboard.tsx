@@ -139,9 +139,56 @@ const AdminDashboard = () => {
     setEditingCounselor(null);
   };
 
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validateTPNumber = (tpNumber: string) => {
+    return /^\d{6}$/.test(tpNumber);
+  };
+
   const handleAddNew = async () => {
     try {
       if (addingType === 'student' && editingStudent) {
+        // Validate student fields
+        if (!editingStudent.name.trim()) {
+          showErrorMessage('Full name is required');
+          return;
+        }
+        if (!editingStudent.email.trim()) {
+          showErrorMessage('Email is required');
+          return;
+        }
+        if (!validateEmail(editingStudent.email)) {
+          showErrorMessage('Please enter a valid email address');
+          return;
+        }
+        if (!editingStudent.tpNumber.trim()) {
+          showErrorMessage('TP Number is required');
+          return;
+        }
+        if (!validateTPNumber(editingStudent.tpNumber)) {
+          showErrorMessage('TP Number must be exactly 6 digits');
+          return;
+        }
+        if (!editingStudent.gender) {
+          showErrorMessage('Gender is required');
+          return;
+        }
+        if (!editingStudent.age || editingStudent.age < 16 || editingStudent.age > 100) {
+          showErrorMessage('Age must be between 16 and 100');
+          return;
+        }
+        if (!editingStudent.course.trim()) {
+          showErrorMessage('Course is required');
+          return;
+        }
+        if (!editingStudent.year || editingStudent.year < 1 || editingStudent.year > 4) {
+          showErrorMessage('Year of study must be between 1 and 4');
+          return;
+        }
+
         await addStudent({
           username: `student_${Date.now()}`,
           fullName: editingStudent.name,
@@ -155,6 +202,36 @@ const AdminDashboard = () => {
         });
         showSuccessMessage('Student added successfully to database');
       } else if (addingType === 'counselor' && editingCounselor) {
+        // Validate counselor fields
+        if (!editingCounselor.name.trim()) {
+          showErrorMessage('Full name is required');
+          return;
+        }
+        if (!editingCounselor.email.trim()) {
+          showErrorMessage('Email is required');
+          return;
+        }
+        if (!validateEmail(editingCounselor.email)) {
+          showErrorMessage('Please enter a valid email address');
+          return;
+        }
+        if (!editingCounselor.gender) {
+          showErrorMessage('Gender is required');
+          return;
+        }
+        if (!editingCounselor.specialty.trim()) {
+          showErrorMessage('Specialization is required');
+          return;
+        }
+        if (!editingCounselor.qualifications.trim()) {
+          showErrorMessage('Qualifications are required');
+          return;
+        }
+        if (!editingCounselor.experience.trim()) {
+          showErrorMessage('Experience is required');
+          return;
+        }
+
         await addTherapist({
           name: editingCounselor.name,
           gender: editingCounselor.gender,
@@ -165,6 +242,7 @@ const AdminDashboard = () => {
       }
     } catch (error) {
       console.error('Error adding:', error);
+      showErrorMessage('Failed to add. Please try again.');
     }
     setShowAddModal(false);
     setEditingStudent(null);
@@ -700,6 +778,7 @@ const AdminDashboard = () => {
                     <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
                     <input
                       type="text"
+                      required
                       value={editingStudent.name}
                       onChange={(e) => setEditingStudent({...editingStudent, name: e.target.value})}
                       className="w-full p-2 border border-red-300 rounded-lg"
@@ -709,6 +788,7 @@ const AdminDashboard = () => {
                     <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
                     <input
                       type="email"
+                      required
                       value={editingStudent.email}
                       onChange={(e) => setEditingStudent({...editingStudent, email: e.target.value})}
                       className="w-full p-2 border border-red-300 rounded-lg"
@@ -718,6 +798,9 @@ const AdminDashboard = () => {
                     <label className="block text-sm font-medium text-slate-700 mb-1">TP Number</label>
                     <input
                       type="text"
+                      required
+                      maxLength={6}
+                      pattern="\d{6}"
                       value={editingStudent.tpNumber}
                       onChange={(e) => setEditingStudent({...editingStudent, tpNumber: e.target.value})}
                       className="w-full p-2 border border-red-300 rounded-lg"
@@ -727,10 +810,12 @@ const AdminDashboard = () => {
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">Gender</label>
                     <select
+                      required
                       value={editingStudent.gender}
                       onChange={(e) => setEditingStudent({...editingStudent, gender: e.target.value})}
                       className="w-full p-2 border border-red-300 rounded-lg"
                     >
+                      <option value="">Select gender</option>
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
                       <option value="Other">Other</option>
@@ -740,6 +825,9 @@ const AdminDashboard = () => {
                     <label className="block text-sm font-medium text-slate-700 mb-1">Age</label>
                     <input
                       type="number"
+                      required
+                      min="16"
+                      max="100"
                       value={editingStudent.age}
                       onChange={(e) => setEditingStudent({...editingStudent, age: parseInt(e.target.value)})}
                       className="w-full p-2 border border-red-300 rounded-lg"
@@ -749,6 +837,7 @@ const AdminDashboard = () => {
                     <label className="block text-sm font-medium text-slate-700 mb-1">Course</label>
                     <input
                       type="text"
+                      required
                       value={editingStudent.course}
                       onChange={(e) => setEditingStudent({...editingStudent, course: e.target.value})}
                       className="w-full p-2 border border-red-300 rounded-lg"
@@ -757,10 +846,12 @@ const AdminDashboard = () => {
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">Year of Study</label>
                     <select
+                      required
                       value={editingStudent.year}
                       onChange={(e) => setEditingStudent({...editingStudent, year: parseInt(e.target.value)})}
                       className="w-full p-2 border border-red-300 rounded-lg"
                     >
+                      <option value="">Select year</option>
                       <option value={1}>Year 1</option>
                       <option value={2}>Year 2</option>
                       <option value={3}>Year 3</option>
@@ -775,6 +866,7 @@ const AdminDashboard = () => {
                     <label className="block text-sm font-medium text-slate-700 mb-1">Full Name</label>
                     <input
                       type="text"
+                      required
                       value={editingCounselor.name}
                       onChange={(e) => setEditingCounselor({...editingCounselor, name: e.target.value})}
                       className="w-full p-2 border border-red-300 rounded-lg"
@@ -785,6 +877,7 @@ const AdminDashboard = () => {
                     <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
                     <input
                       type="email"
+                      required
                       value={editingCounselor.email}
                       onChange={(e) => setEditingCounselor({...editingCounselor, email: e.target.value})}
                       className="w-full p-2 border border-red-300 rounded-lg"
@@ -793,10 +886,12 @@ const AdminDashboard = () => {
                   <div>
                     <label className="block text-sm font-medium text-slate-700 mb-1">Gender</label>
                     <select
+                      required
                       value={editingCounselor.gender}
                       onChange={(e) => setEditingCounselor({...editingCounselor, gender: e.target.value})}
                       className="w-full p-2 border border-red-300 rounded-lg"
                     >
+                      <option value="">Select gender</option>
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
                       <option value="Other">Other</option>
@@ -806,6 +901,7 @@ const AdminDashboard = () => {
                     <label className="block text-sm font-medium text-slate-700 mb-1">Specialization</label>
                     <input
                       type="text"
+                      required
                       value={editingCounselor.specialty}
                       onChange={(e) => setEditingCounselor({...editingCounselor, specialty: e.target.value})}
                       className="w-full p-2 border border-red-300 rounded-lg"
@@ -816,6 +912,7 @@ const AdminDashboard = () => {
                     <label className="block text-sm font-medium text-slate-700 mb-1">Qualifications</label>
                     <input
                       type="text"
+                      required
                       value={editingCounselor.qualifications}
                       onChange={(e) => setEditingCounselor({...editingCounselor, qualifications: e.target.value})}
                       className="w-full p-2 border border-red-300 rounded-lg"
@@ -826,6 +923,7 @@ const AdminDashboard = () => {
                     <label className="block text-sm font-medium text-slate-700 mb-1">Experience</label>
                     <input
                       type="text"
+                      required
                       value={editingCounselor.experience}
                       onChange={(e) => setEditingCounselor({...editingCounselor, experience: e.target.value})}
                       className="w-full p-2 border border-red-300 rounded-lg"
