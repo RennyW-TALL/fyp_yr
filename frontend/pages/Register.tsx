@@ -60,7 +60,12 @@ const Register = () => {
           username: formData.username,
           fullName: formData.full_name,
           email: formData.email,
-          studentId: formData.tp_number
+          tpNumber: formData.tp_number,
+          gender: formData.gender,
+          age: parseInt(formData.age) || 18,
+          course: formData.course,
+          yearOfStudy: parseInt(formData.year_of_study) || 1,
+          studentId: `STU${Date.now().toString().slice(-3)}`
         };
 
         await addStudent(studentData);

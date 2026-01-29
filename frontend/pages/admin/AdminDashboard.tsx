@@ -35,7 +35,7 @@ interface PendingCounselor {
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const { students, therapists, pendingTherapists, approveTherapist, rejectTherapist, deleteStudent, deleteTherapist, updateStudent, updateTherapist, addStudent, addPendingTherapist } = useDatabase('admin01');
+  const { students, therapists, pendingTherapists, approveTherapist, rejectTherapist, deleteStudent, deleteTherapist, updateStudent, updateTherapist, addStudent, addTherapist, addPendingTherapist } = useDatabase('admin01');
   
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -155,16 +155,13 @@ const AdminDashboard = () => {
         });
         showSuccessMessage('Student added successfully to database');
       } else if (addingType === 'counselor' && editingCounselor) {
-        await addPendingTherapist({
+        await addTherapist({
           name: editingCounselor.name,
-          email: editingCounselor.email,
           gender: editingCounselor.gender,
           specialization: editingCounselor.specialty,
-          qualifications: editingCounselor.qualifications,
-          experience: editingCounselor.experience,
           profileImage: '/images/therapists/default.jpg'
         });
-        showSuccessMessage('Counselor added to pending list');
+        showSuccessMessage('Counselor added successfully to database');
       }
     } catch (error) {
       console.error('Error adding:', error);

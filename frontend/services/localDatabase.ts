@@ -533,6 +533,21 @@ class LocalDatabase {
     return newStudent;
   }
 
+  addTherapist(therapist: Omit<Therapist, 'id'>): Therapist {
+    const therapists = this.getTherapists();
+    const newId = Math.max(0, ...therapists.map(t => t.id)) + 1;
+    
+    const newTherapist: Therapist = {
+      ...therapist,
+      id: newId
+    };
+    
+    therapists.push(newTherapist);
+    localStorage.setItem('therapists', JSON.stringify(therapists));
+    this.notifyChange();
+    return newTherapist;
+  }
+
   getPendingTherapists(): PendingTherapist[] {
     return JSON.parse(localStorage.getItem('pending_therapists') || '[]');
   }

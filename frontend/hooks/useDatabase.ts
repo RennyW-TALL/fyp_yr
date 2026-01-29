@@ -178,6 +178,17 @@ export const useDatabase = (username?: string) => {
     }
   }, []);
 
+  const addTherapist = useCallback(async (therapist: Omit<Therapist, 'id'>) => {
+    setLoading(true);
+    try {
+      const newTherapist = localDatabase.addTherapist(therapist);
+      setTherapists(localDatabase.getTherapists());
+      return newTherapist;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const addPendingTherapist = useCallback(async (therapist: Omit<PendingTherapist, 'id' | 'status' | 'created_at'>) => {
     setLoading(true);
     try {
@@ -290,6 +301,7 @@ export const useDatabase = (username?: string) => {
     
     // Admin Operations
     addStudent,
+    addTherapist,
     addPendingTherapist,
     approveTherapist,
     rejectTherapist,
